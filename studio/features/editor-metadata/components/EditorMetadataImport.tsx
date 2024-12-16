@@ -9,6 +9,7 @@ import {
 } from "@adobe/react-spectrum";
 import { NoData } from "@core/components/Empty";
 import { PositioningContainer } from "@core/components/PositioningContainer";
+import { toasterOptions } from "@core/defaults";
 import { ToastQueue } from "@react-spectrum/toast";
 import { useCallback, useMemo, useState } from "react";
 import useMetadataContext from "../hooks/useMetadataContext";
@@ -46,7 +47,7 @@ export default function EditorMetadataImport() {
       targetMetadataColumn,
       removeExisting,
     );
-    ToastQueue.positive("Data mapped successfully");
+    ToastQueue.positive("Data mapped successfully", toasterOptions);
   }, [
     handleMapping,
     sourceMetadataColumn,

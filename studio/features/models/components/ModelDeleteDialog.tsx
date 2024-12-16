@@ -1,4 +1,5 @@
 import { AlertDialog, DialogContainer } from "@adobe/react-spectrum";
+import { toasterOptions } from "@core/defaults";
 import { ToastQueue } from "@react-spectrum/toast";
 import { useCallback } from "react";
 import { useDeleteModel } from "../hooks/useDeleteModel";
@@ -18,17 +19,17 @@ export default function ModelDeleteDialog({
 
   const handleDelete = useCallback(async () => {
     if (!modelId) {
-      ToastQueue.negative("Invalid model id");
+      ToastQueue.negative("Invalid model id", toasterOptions);
       return;
     }
 
     try {
       await call(modelId);
-      ToastQueue.info("Model deleted successfully");
+      ToastQueue.info("Model deleted successfully", toasterOptions);
       close();
     } catch (error) {
       console.error(error);
-      ToastQueue.negative("Failed to delete model");
+      ToastQueue.negative("Failed to delete model", toasterOptions);
     }
   }, [call, close, modelId]);
 

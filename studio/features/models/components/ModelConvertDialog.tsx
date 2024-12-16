@@ -9,6 +9,7 @@ import {
   Heading,
   TextField,
 } from "@adobe/react-spectrum";
+import { toasterOptions } from "@core/defaults";
 import { ToastQueue } from "@react-spectrum/toast";
 import { useState } from "react";
 import { useModel } from "../hooks/useModel";
@@ -36,9 +37,9 @@ export default function ModelConvertDialog({
 
     try {
       const response = await convertModel(modelId, targetEPSG);
-      ToastQueue.info("Converted model successfully created.");
+      ToastQueue.info("Converted model successfully created.", toasterOptions);
     } catch (error) {
-      ToastQueue.negative("Creating converted model failed.", {});
+      ToastQueue.negative("Creating converted model failed.", toasterOptions);
     }
 
     setIsConverting(false);

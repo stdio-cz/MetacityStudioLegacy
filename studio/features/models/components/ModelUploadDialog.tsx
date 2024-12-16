@@ -17,7 +17,7 @@ import {
   TextField,
 } from "@adobe/react-spectrum";
 import uploadModel from "@features/api-sdk/uploadModel";
-
+import { toasterOptions } from "@core/defaults";
 import { ToastQueue } from "@react-spectrum/toast";
 import { DropEvent } from "@react-types/shared";
 import File from "@spectrum-icons/illustrations/File";
@@ -35,10 +35,10 @@ export default function ModelUploadDialog({ close }: UploadModelDialogProps) {
   const handleSubmit = useCallback(async () => {
     // check if files are empty
     if (!files.length) {
-      ToastQueue.negative("At least one file is required");
+      ToastQueue.negative("At least one file is required", toasterOptions);
     }
     if (!name) {
-      ToastQueue.negative("Model name is required");
+      ToastQueue.negative("Model name is required", toasterOptions);
     }
     if (!files.length || !name) {
       return;
@@ -51,7 +51,7 @@ export default function ModelUploadDialog({ close }: UploadModelDialogProps) {
     if (response.status === 201) {
       close();
     } else {
-      ToastQueue.negative("Failed to upload model");
+      ToastQueue.negative("Failed to upload model", toasterOptions);
     }
   }, [name, files, close]);
 

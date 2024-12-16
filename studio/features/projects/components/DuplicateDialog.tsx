@@ -1,4 +1,5 @@
 import { AlertDialog, DialogContainer } from "@adobe/react-spectrum";
+import { toasterOptions } from "@core/defaults";
 import { ToastQueue } from "@react-spectrum/toast";
 import { useCallback } from "react";
 import { useDuplicateProject } from "../hooks/useDuplicateProject";
@@ -18,17 +19,17 @@ export default function DuplicateDialog({
 
   const handleDelete = useCallback(async () => {
     if (!projectId) {
-      ToastQueue.negative("Invalid project id");
+      ToastQueue.negative("Invalid project id", toasterOptions);
       return;
     }
 
     try {
       await call(projectId);
-      ToastQueue.info("Project duplicated successfully");
+      ToastQueue.info("Project duplicated successfully", toasterOptions);
       close();
     } catch (error) {
       console.error(error);
-      ToastQueue.negative("Failed to duplicate project");
+      ToastQueue.negative("Failed to duplicate project", toasterOptions);
     }
   }, [call, close, projectId]);
 

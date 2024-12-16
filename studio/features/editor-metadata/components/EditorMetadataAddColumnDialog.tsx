@@ -9,6 +9,7 @@ import {
   RadioGroup,
   TextField,
 } from "@adobe/react-spectrum";
+import { toasterOptions } from "@core/defaults";
 import { ToastQueue } from "@react-spectrum/toast";
 import { useCallback, useState } from "react";
 
@@ -31,17 +32,17 @@ export default function AddColumnDialog({
 
   const handleSubmit = useCallback(async () => {
     if (!name) {
-      ToastQueue.negative("Column name is required");
+      ToastQueue.negative("Column name is required", toasterOptions);
       return;
     }
 
     try {
       onSubmit(name, defaultValue, defaultType);
-      ToastQueue.positive("Column created successfully");
+      ToastQueue.positive("Column created successfully", toasterOptions);
       close();
     } catch (error) {
       console.error(error);
-      ToastQueue.negative("Failed to create column");
+      ToastQueue.negative("Failed to create column", toasterOptions);
     }
   }, [name, defaultValue, defaultType, onSubmit, close]);
 

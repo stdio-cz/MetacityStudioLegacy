@@ -11,6 +11,7 @@ import {
   TextField,
 } from "@adobe/react-spectrum";
 import { useCreateProjects } from "@features/projects/hooks/useCreateProject";
+import { toasterOptions } from "@core/defaults";
 import { ToastQueue } from "@react-spectrum/toast";
 import { useCallback, useState } from "react";
 
@@ -28,7 +29,7 @@ export default function CreateProjectDialog({
 
   const handleSubmit = useCallback(async () => {
     if (!name || !description) {
-      ToastQueue.negative("Project name and description are required");
+      ToastQueue.negative("Project name and description are required", toasterOptions);
       return;
     }
 
@@ -39,11 +40,11 @@ export default function CreateProjectDialog({
 
     try {
       await call(data);
-      ToastQueue.positive("Project created successfully");
+      ToastQueue.positive("Project created successfully", toasterOptions);
       close();
     } catch (error) {
       console.error(error);
-      ToastQueue.negative("Failed to create project");
+      ToastQueue.negative("Failed to create project", toasterOptions);
     }
   }, [name, description, call, close]);
 
