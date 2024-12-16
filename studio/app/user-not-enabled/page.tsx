@@ -17,7 +17,7 @@ function UserNotEnabledPage() {
 
         <p>
           Your account has not been enabled. Please contact an administrator at{" "}
-          <a href="mailto:vojta@stdio.cz">vojta@stdio.cz</a>
+          <a href="mailto:hi@stdio.cz">hi@stdio.cz</a>
         </p>
       </View>
     </Grid>
