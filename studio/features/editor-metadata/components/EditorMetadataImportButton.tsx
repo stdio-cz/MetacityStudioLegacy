@@ -10,6 +10,7 @@ import {
   ProgressCircle,
   Text,
 } from "@adobe/react-spectrum";
+import { toasterOptions } from "@core/defaults";
 import { ToastQueue } from "@react-spectrum/toast";
 import { parse } from "csv-parse/sync";
 import { useCallback, useState } from "react";
@@ -32,7 +33,7 @@ export default function EditorMetadataImportButton({
       setLoading(true);
       if (modelList.length === 0) {
         setLoading(false);
-        ToastQueue.info("No table selected");
+        ToastQueue.info("No table selected", toasterOptions);
         return;
       }
 

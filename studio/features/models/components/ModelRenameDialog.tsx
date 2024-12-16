@@ -8,6 +8,7 @@ import {
   Heading,
   TextField,
 } from "@adobe/react-spectrum";
+import { toasterOptions } from "@core/defaults";
 import { ToastQueue } from "@react-spectrum/toast";
 import { useCallback, useEffect, useState } from "react";
 import { useModel } from "../hooks/useModel";
@@ -36,7 +37,7 @@ export default function ModelRenameDialog({
 
   const handleRename = useCallback(async () => {
     if (!modelId) {
-      ToastQueue.negative("Invalid model id");
+      ToastQueue.negative("Invalid model id", toasterOptions);
       return;
     }
 
@@ -46,11 +47,11 @@ export default function ModelRenameDialog({
 
     try {
       await call(modelId, data);
-      ToastQueue.info("Model renamed successfully");
+      ToastQueue.info("Model renamed successfully", toasterOptions);
       close();
     } catch (error) {
       console.error(error);
-      ToastQueue.negative("Failed to rename model");
+      ToastQueue.negative("Failed to rename model"), toasterOptions;
     }
   }, [call, close, modelId, name]);
 
