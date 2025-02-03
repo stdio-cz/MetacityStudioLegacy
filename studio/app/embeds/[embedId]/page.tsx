@@ -35,4 +35,4 @@ function EmbedPage({ params }: ProjectPageProps) {
   );
 }
 
-export default withPageAuthRequired(withUserEnabled(EmbedPage));
+export default EmbedPage;
