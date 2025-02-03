@@ -27,6 +27,6 @@ jobs:
         with:
           push: true
           context: ./studio
-          tags: "ghcr.io/metacitytools/studio:latest"
+          tags: "ghcr.io/stdio-cz/mc-studio:latest"
           cache-from: type=gha
           cache-to: type=gha,mode=max
