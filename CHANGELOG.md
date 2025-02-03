@@ -1,3 +1,8 @@
+## [1.0.6](https://github.com/stdio-cz/MetacityStudioLegacy/compare/v1.0.5...v1.0.6) (2025-02-03)
+
+### Bug Fixes
+
+* enable embeds viewing without authorization ([#4](https://github.com/stdio-cz/MetacityStudioLegacy/issues/4)) ([8dc5639](https://github.com/stdio-cz/MetacityStudioLegacy/commit/8dc5639754e6438076a9b31da4513f956a59b1c8))
 ## [1.0.5](https://github.com/stdio-cz/MetacityStudioLegacy/compare/v1.0.4...v1.0.5) (2025-02-03)
 
 ### Features
