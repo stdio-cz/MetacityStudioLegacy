@@ -1,3 +1,13 @@
+## [1.0.5](https://github.com/stdio-cz/MetacityStudioLegacy/compare/v1.0.4...v1.0.5) (2025-02-03)
+
+### Features
+
+* set timeout 5s for every toaster ([#1](https://github.com/stdio-cz/MetacityStudioLegacy/issues/1)) ([408640b](https://github.com/stdio-cz/MetacityStudioLegacy/commit/408640bdd63b66c1e3f3d04554450f4260bb8d9d))
+
+### Bug Fixes
+
+* add disableShift parameter while spliting models ([#2](https://github.com/stdio-cz/MetacityStudioLegacy/issues/2)) ([16dbefb](https://github.com/stdio-cz/MetacityStudioLegacy/commit/16dbefbf7a40fb98f056fbe570c5b30931d5055d))
+* changed hardcoded email address ([#3](https://github.com/stdio-cz/MetacityStudioLegacy/issues/3)) ([f545a4c](https://github.com/stdio-cz/MetacityStudioLegacy/commit/f545a4c59db88c502221bd0d8318845bb3372289))
 ## [1.0.4](https://github.com/MetacityTools/Studio/compare/v1.0.3...v1.0.4) (2024-09-20)
 
 ### Bug Fixes
