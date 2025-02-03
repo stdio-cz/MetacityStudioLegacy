@@ -27,6 +27,6 @@ jobs:
         with:
           push: true
           context: ./coordinates_converter
-          tags: "ghcr.io/metacitytools/coordinates-converter:latest"
+          tags: "ghcr.io/stdio-cz/mc-coordinates-converter:latest"
           cache-from: type=gha
           cache-to: type=gha,mode=max
