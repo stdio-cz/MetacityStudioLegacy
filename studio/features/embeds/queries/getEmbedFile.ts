@@ -8,14 +8,10 @@ import { injectRepository } from "@features/db/helpers";
 import { listFilesInBucket } from "@features/storage";
 
 export default async function getEnbedFile(id: number) {
-  if (!(await canReadProjects())) throw new Error("Unauthorized");
-
-  const user = (await getUserToken())!;
-
   const embedRepository = await injectRepository(Embed);
 
   const embed = await embedRepository.findOne({
-    where: { id, project: { user: { id: user.id } } },
+    where: { id },
   });
 
   if (!embed) throw new Error("Not found");
