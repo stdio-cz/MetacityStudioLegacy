@@ -13,6 +13,7 @@ import {
 import { Style } from "@features/editor/data/types";
 import { useEditorContext } from "@features/editor/hooks/useEditorContext";
 import { parseColor } from "@react-spectrum/color";
+import { toasterOptions } from "@core/defaults";
 import { ToastQueue } from "@react-spectrum/toast";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { colorMaps } from "../constants";
@@ -95,11 +96,11 @@ export default function ColorPaletteDialog({ close }: AddValueDialogProps) {
         return next;
       });
 
-      ToastQueue.positive("Color map applied successfully");
+      ToastQueue.positive("Color map applied successfully", toasterOptions);
       close();
     } catch (error) {
       console.error(error);
-      ToastQueue.negative("Applying color map failed");
+      ToastQueue.negative("Applying color map failed", toasterOptions);
     }
   }, [value, close, setStyles, activeMetadataColumn, aggregatedRows, range]);
 

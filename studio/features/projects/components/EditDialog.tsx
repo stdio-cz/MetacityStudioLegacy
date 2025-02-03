@@ -9,6 +9,7 @@ import {
   TextArea,
   TextField,
 } from "@adobe/react-spectrum";
+import { toasterOptions } from "@core/defaults";
 import { ToastQueue } from "@react-spectrum/toast";
 import { useCallback, useEffect, useState } from "react";
 import { useGetProjectById } from "../hooks/useGetProjectById";
@@ -40,12 +41,12 @@ export default function EditDialog({
 
   const handleSubmit = useCallback(async () => {
     if (!name || !description) {
-      ToastQueue.negative("Project name and description are required");
+      ToastQueue.negative("Project name and description are required", toasterOptions);
       return;
     }
 
     if (!projectId) {
-      ToastQueue.negative("Invalid project id");
+      ToastQueue.negative("Invalid project id", toasterOptions);
       return;
     }
 
@@ -56,11 +57,11 @@ export default function EditDialog({
 
     try {
       await call(projectId, data);
-      ToastQueue.positive("Project updated successfully");
+      ToastQueue.positive("Project updated successfully", toasterOptions);
       close();
     } catch (error) {
       console.error(error);
-      ToastQueue.negative("Failed to create project");
+      ToastQueue.negative("Failed to create project", toasterOptions);
     }
   }, [name, description, projectId, call, close]);
 

@@ -1,4 +1,5 @@
 import { AlertDialog, DialogContainer } from "@adobe/react-spectrum";
+import { toasterOptions } from "@core/defaults";
 import { ToastQueue } from "@react-spectrum/toast";
 import { useCallback } from "react";
 import { useDeleteProject } from "../hooks/useDeleteProject";
@@ -18,17 +19,17 @@ export default function DeleteDialog({
 
   const handleDelete = useCallback(async () => {
     if (!projectId) {
-      ToastQueue.negative("Invalid project id");
+      ToastQueue.negative("Invalid project id", toasterOptions);
       return;
     }
 
     try {
       await call(projectId);
-      ToastQueue.info("Project deleted successfully");
+      ToastQueue.info("Project deleted successfully", toasterOptions);
       close();
     } catch (error) {
       console.error(error);
-      ToastQueue.negative("Failed to delete project");
+      ToastQueue.negative("Failed to delete project", toasterOptions);
     }
   }, [call, close, projectId]);
 

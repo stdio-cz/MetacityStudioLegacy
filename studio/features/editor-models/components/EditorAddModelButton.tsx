@@ -12,6 +12,7 @@ import {
 } from "@adobe/react-spectrum";
 import { useImportModels } from "@features/editor/hooks/useImportModels";
 import { load } from "@features/editor/utils/formats/loader";
+import { toasterOptions } from "@core/defaults";
 import { ToastQueue } from "@react-spectrum/toast";
 import { useCallback, useState } from "react";
 
@@ -40,7 +41,7 @@ export default function EditorAddModelButton({}: EditorAddModelDialogProps) {
       setLoading(true);
       if (modelList.length === 0) {
         setLoading(false);
-        ToastQueue.info("No models selected");
+        ToastQueue.info("No models selected", toasterOptions);
         return;
       }
       const fileMap = new Map<string, Blob>();
