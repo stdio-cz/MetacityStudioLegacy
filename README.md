@@ -32,3 +32,16 @@ The devcontainer includes:
 * Node.js 20
 * Python 3.12
 * Docker-in-Docker
+
+After running the devcontainer:
+
+```bash
+npm run migrations:run
+```
+
+In case of an error after logging in, for MacOS users, comment out
+
+
+```typescript
+migrations: Config.environment === "test" ? undefined : ["features/db/migrations/*.ts"],
+```
