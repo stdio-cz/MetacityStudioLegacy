@@ -1,11 +1,4 @@
-import {
-  ActionGroup,
-  Item,
-  Selection,
-  Tooltip,
-  TooltipTrigger,
-  View,
-} from "@adobe/react-spectrum";
+import { ActionGroup, Item, Selection, Tooltip, TooltipTrigger, View } from "@adobe/react-spectrum";
 import { CameraView } from "@bananagl/bananagl";
 import { CubeEmpty } from "@core/icons/CubeEmpty";
 import { CubeLeft } from "@core/icons/CubeLeft";
@@ -15,7 +8,7 @@ import { CubeTop } from "@core/icons/CubeTop";
 import { useEditorContext } from "@features/editor/hooks/useEditorContext";
 import { useCallback } from "react";
 
-export default function CameraViewToolbar() {
+export default function CameraViewToolbar({ embedMode = false }: { embedMode?: boolean }) {
   const { viewMode, setViewMode } = useEditorContext();
 
   const handleAction = useCallback(
@@ -24,13 +17,50 @@ export default function CameraViewToolbar() {
       if (keys === "all") return;
 
       //get first key
-      const viewMode =
-        (keys.values().next().value as CameraView) ?? CameraView.Free;
+      const viewMode = (keys.values().next().value as CameraView) ?? CameraView.Free;
       setViewMode(viewMode);
     },
-
     [setViewMode],
   );
+
+  // Camera options
+  const cameraOptions = [
+    {
+      key: CameraView.Free,
+      icon: <CubeEmpty />,
+      label: "Free camera",
+    },
+    {
+      key: CameraView.Top,
+      icon: <CubeTop />,
+      label: "Top view",
+    },
+    // Only show these in editor mode
+    ...(!embedMode
+      ? [
+          {
+            key: CameraView.Front,
+            icon: <CubeLeft />,
+            label: "Front view",
+          },
+          {
+            key: CameraView.Right,
+            icon: <CubeRight />,
+            label: "Right view",
+          },
+          {
+            key: CameraView.Left,
+            icon: <CubeLeft />,
+            label: "Left view",
+          },
+          {
+            key: CameraView.Back,
+            icon: <CubeRight />,
+            label: "Back view",
+          },
+        ]
+      : []),
+  ];
 
   return (
     <View
@@ -48,42 +78,12 @@ export default function CameraViewToolbar() {
         selectedKeys={[viewMode]}
         isQuiet
       >
-        <TooltipTrigger delay={0} placement="bottom">
-          <Item key={CameraView.Free}>
-            <CubeEmpty />
-          </Item>
-          <Tooltip>Free camera</Tooltip>
-        </TooltipTrigger>
-        <TooltipTrigger delay={0} placement="bottom">
-          <Item key={CameraView.Top}>
-            <CubeTop />
-          </Item>
-          <Tooltip>Top view</Tooltip>
-        </TooltipTrigger>
-        <TooltipTrigger delay={0} placement="bottom">
-          <Item key={CameraView.Front}>
-            <CubeLeft />
-          </Item>
-          <Tooltip>Front view</Tooltip>
-        </TooltipTrigger>
-        <TooltipTrigger delay={0} placement="bottom">
-          <Item key={CameraView.Right}>
-            <CubeRight />
-          </Item>
-          <Tooltip>Right view</Tooltip>
-        </TooltipTrigger>
-        <TooltipTrigger delay={0} placement="bottom">
-          <Item key={CameraView.Left}>
-            <CubeLeft />
-          </Item>
-          <Tooltip>Left view</Tooltip>
-        </TooltipTrigger>
-        <TooltipTrigger delay={0} placement="bottom">
-          <Item key={CameraView.Back}>
-            <CubeRight />
-          </Item>
-          <Tooltip>Back view</Tooltip>
-        </TooltipTrigger>
+        {cameraOptions.map((opt) => (
+          <TooltipTrigger key={opt.key} delay={0} placement="bottom">
+            <Item key={opt.key}>{opt.icon}</Item>
+            <Tooltip>{opt.label}</Tooltip>
+          </TooltipTrigger>
+        ))}
       </ActionGroup>
     </View>
   );

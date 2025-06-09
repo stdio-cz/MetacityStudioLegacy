@@ -19,6 +19,9 @@ type ViewerProps = {
 export default function Viewer(props: ViewerProps) {
   useMetadataModelStyle();
 
+  // If embedId is present, we are in embed mode
+  const embedMode = typeof props.embedId === "number";
+
   return (
     <View width="100%" height="100%" position="relative">
       <CanvasWrapper />
@@ -32,7 +35,7 @@ export default function Viewer(props: ViewerProps) {
           width="size-100"
         >
           <ProjectionToolbar />
-          <CameraViewToolbar />
+          <CameraViewToolbar embedMode={embedMode} />
           <SelectionToolbar />
           <ColorSchemeToolbar />
           <ActiveColumnToolbar />
