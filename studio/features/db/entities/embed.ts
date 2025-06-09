@@ -21,6 +21,8 @@ export class Embed {
 
   @Column() thumbnailContents!: string;
 
+  @Column({ default: false }) onlyTooltipInfo!: boolean;
+
   @CreateDateColumn() createdAt!: Date;
   @UpdateDateColumn() updatedAt!: Date;
 }

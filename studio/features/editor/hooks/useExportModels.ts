@@ -40,7 +40,7 @@ export default function useExportEmbed() {
   const ctx = useEditorContext();
 
   const exportProject = useCallback(
-    (selectedColumns: Set<string>) => {
+    (selectedColumns: Set<string>, onlyTooltipInfo: boolean = false) => {
       const modelData = extractModels(models);
       if (!modelData) return;
 

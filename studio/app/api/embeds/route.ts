@@ -7,6 +7,7 @@ const postSchema = zfd.formData({
   thumbnailFileContents: zfd.text(),
   projectId: zfd.numeric(),
   name: zfd.text(),
+  onlyTooltipInfo: zfd.checkbox().optional(),
 });
 
 export async function POST(req: Request) {
@@ -17,6 +18,7 @@ export async function POST(req: Request) {
       data.name,
       data.dataFile,
       data.thumbnailFileContents,
+      data.onlyTooltipInfo ?? false,
     );
 
     return Response.json(model, { status: 201 });

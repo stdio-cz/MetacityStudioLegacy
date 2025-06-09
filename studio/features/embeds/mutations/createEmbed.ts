@@ -16,6 +16,7 @@ export async function createEmbed(
   name: string,
   file: File,
   thumbnailFileContents: string,
+  onlyTooltipInfo: boolean = false,
 ) {
   if (!(await canEditProject())) throw new Error("Unauthorized");
 
@@ -31,6 +32,7 @@ export async function createEmbed(
     name: name,
     thumbnailContents: thumbnailFileContents,
     bucketName: bucketName,
+    onlyTooltipInfo: onlyTooltipInfo,
   });
 
   // save the files to the bucket

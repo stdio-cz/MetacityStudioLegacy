@@ -5,6 +5,7 @@ export default async function uploadEmbed(
   dataFile: File,
   thumbnailFileContents: string,
   name: string,
+  onlyTooltipInfo?: boolean,
 ) {
   const formData = new FormData();
 
@@ -12,6 +13,7 @@ export default async function uploadEmbed(
   formData.append("dataFile", dataFile);
   formData.append("thumbnailFileContents", thumbnailFileContents);
   formData.append("name", name);
+  if (onlyTooltipInfo) formData.append("onlyTooltipInfo", "on");
 
   const response = await axios.post("/api/embeds", formData);
 

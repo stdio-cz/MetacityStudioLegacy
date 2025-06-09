@@ -3,6 +3,7 @@
 import {
   ActionBar,
   ActionBarContainer,
+  Checkbox,
   Content,
   Dialog,
   DialogContainer,
@@ -36,16 +37,14 @@ export default function EditorExportsCreate({
   const [name, setName] = useState<string>("Untitled Embed");
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [isSavingDialogOpen, setIsSavingDialogOpen] = useState(false);
+  const [onlyTooltipInfo, setOnlyTooltipInfo] = useState(false);
 
   const exportEmbeds = useExportEmbed();
   const renderer = useRenderer();
 
   const saveEmbed = useCallback(() => {
-    async function handleUploadEmbed(
-      dataFile: File,
-      thumbnailFileContents: string,
-    ) {
-      await uploadEmbed(sanitizedId, dataFile, thumbnailFileContents, name);
+    async function handleUploadEmbed(dataFile: File, thumbnailFileContents: string) {
+      await uploadEmbed(sanitizedId, dataFile, thumbnailFileContents, name, onlyTooltipInfo);
 
       setIsSavingDialogOpen(false);
     }
@@ -57,13 +56,13 @@ export default function EditorExportsCreate({
       const image = canvas.toDataURL("image/png");
 
       //export project data
-      const dataFile = exportEmbeds(new Set(selectedKeys));
+      const dataFile = exportEmbeds(new Set(selectedKeys), onlyTooltipInfo);
       if (!dataFile) return;
 
       //upload project version
       void handleUploadEmbed(dataFile, image);
     };
-  }, [sanitizedId, name, exportEmbeds, renderer, selectedKeys]);
+  }, [sanitizedId, name, exportEmbeds, renderer, selectedKeys, onlyTooltipInfo]);
 
   const handleGlobalAction = useCallback(
     (key: Key) => {
@@ -84,6 +83,9 @@ export default function EditorExportsCreate({
             value={name}
             onChange={setName}
           />
+          <Checkbox isSelected={onlyTooltipInfo} onChange={setOnlyTooltipInfo} marginTop="size-200">
+          Only include tooltip information
+          </Checkbox>
         </View>
         <View width="100%" marginBottom="size-50">
           <Text
