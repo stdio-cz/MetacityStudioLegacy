@@ -11,6 +11,7 @@ import SelectionToolbar from "@features/editor-toolbar/components/SelectionToolb
 
 import { CanvasWrapper } from "@features/editor/components/Canvas/CanvasWrapper";
 import { TooltipOverlay } from "@features/editor/components/Canvas/TooltipOverlay";
+import { useEmbed } from "@features/embeds/hooks/useEmbed";
 
 type ViewerProps = {
   embedId: number;
@@ -21,11 +22,12 @@ export default function Viewer(props: ViewerProps) {
 
   // If embedId is present, we are in embed mode
   const embedMode = typeof props.embedId === "number";
+  const { data: embed } = useEmbed(props.embedId);
 
   return (
     <View width="100%" height="100%" position="relative">
       <CanvasWrapper />
-      <TooltipOverlay />
+      <TooltipOverlay onlyTooltipInfo={!!embed?.onlyTooltipInfo} />
       <View position="absolute" top="size-100" left="size-100">
         <Grid
           areas={["projection camera selection scheme style"]}
@@ -38,7 +40,7 @@ export default function Viewer(props: ViewerProps) {
           <CameraViewToolbar embedMode={embedMode} />
           <SelectionToolbar />
           <ColorSchemeToolbar />
-          <ActiveColumnToolbar />
+          {!embed?.onlyTooltipInfo && <ActiveColumnToolbar />}
         </Grid>
       </View>
     </View>

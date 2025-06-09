@@ -1,13 +1,22 @@
 import { Heading, Text, View } from "@adobe/react-spectrum";
 import { useEditorContext } from "@features/editor/hooks/useEditorContext";
 
-export function TooltipOverlay() {
+export function TooltipOverlay({ onlyTooltipInfo = false }: { onlyTooltipInfo?: boolean }) {
   const { tooltip, activeMetadataColumn } = useEditorContext();
 
   if (!tooltip) return null;
 
-  const value = tooltip.data[activeMetadataColumn];
-  //if (value === undefined) return null;
+  let content;
+  if (onlyTooltipInfo) {
+    content = Object.entries(tooltip.data)
+      .map(([key, value]) => `${key}: ${value ?? "N/A"}`)
+      .join("\n");
+  } else {
+    content = tooltip.data[activeMetadataColumn] ?? "N/A";
+  }
+
+  // If content is empty, display 'N/A'
+  if (!content) content = "N/A";
 
   return (
     <View
@@ -31,11 +40,15 @@ export function TooltipOverlay() {
       >
         <View>
           <Heading level={6} margin="0">
-            {activeMetadataColumn}
+            {onlyTooltipInfo ? "Data" : activeMetadataColumn}
           </Heading>
         </View>
         <View>
-          <Text>{value ?? "N/A"}</Text>
+          <Text>
+            {onlyTooltipInfo
+              ? content.split("\n").map((line: string, i: number) => <div key={i}>{line}</div>)
+              : content}
+          </Text>
         </View>
       </View>
     </View>
