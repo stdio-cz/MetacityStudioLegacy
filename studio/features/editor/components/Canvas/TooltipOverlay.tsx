@@ -1,21 +1,65 @@
 import { Heading, Text, View } from "@adobe/react-spectrum";
 import { useEditorContext } from "@features/editor/hooks/useEditorContext";
+import { useEffect, useRef, useState } from "react";
 
 export function TooltipOverlay({ onlyTooltipInfo = false }: { onlyTooltipInfo?: boolean }) {
   const { tooltip, activeMetadataColumn } = useEditorContext();
+  const [visibleTooltip, setVisibleTooltip] = useState(tooltip);
+  const hideTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  if (!tooltip) return null;
+  // Effect to handle tooltip show/hide based on context
+  useEffect(() => {
+    if (tooltip) {
+      setVisibleTooltip(tooltip);
+      if (hideTimeout.current) {
+        clearTimeout(hideTimeout.current);
+        hideTimeout.current = null;
+      }
+    } else if (visibleTooltip) {
+      if (!hideTimeout.current) {
+        hideTimeout.current = setTimeout(() => {
+          setVisibleTooltip(null);
+          hideTimeout.current = null;
+        }, 200); // 2s delay
+      }
+    }
+    return () => {
+      if (hideTimeout.current) {
+        clearTimeout(hideTimeout.current);
+        hideTimeout.current = null;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tooltip, visibleTooltip]);
+
+  // Handler for mouse enter/leave on the tooltip itself
+  const handleMouseEnter = () => {
+    if (hideTimeout.current) {
+      clearTimeout(hideTimeout.current);
+      hideTimeout.current = null;
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!hideTimeout.current) {
+      hideTimeout.current = setTimeout(() => {
+        setVisibleTooltip(null);
+        hideTimeout.current = null;
+      }, 200); // 2s delay
+    }
+  };
+
+  if (!visibleTooltip) return null;
 
   let content;
   if (onlyTooltipInfo) {
-    content = Object.entries(tooltip.data)
+    content = Object.entries(visibleTooltip.data)
       .map(([key, value]) => `${key}: ${value ?? "N/A"}`)
       .join("\n");
   } else {
-    content = tooltip.data[activeMetadataColumn] ?? "N/A";
+    content = visibleTooltip.data[activeMetadataColumn] ?? "N/A";
   }
 
-  // If content is empty, display 'N/A'
   if (!content) content = "N/A";
 
   return (
@@ -30,27 +74,35 @@ export function TooltipOverlay({ onlyTooltipInfo = false }: { onlyTooltipInfo?: 
       }}
       zIndex={100}
     >
-      <View
-        top={tooltip.y + 10}
-        left={tooltip.x + 10}
-        position="absolute"
-        backgroundColor="gray-50"
-        padding="size-100"
-        borderRadius="regular"
+      <div
+        style={{
+          position: "absolute",
+          top: visibleTooltip.y + 10,
+          left: visibleTooltip.x + 10,
+          pointerEvents: "auto",
+        }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
-        <View>
-          <Heading level={6} margin="0">
-            {onlyTooltipInfo ? "Data" : activeMetadataColumn}
-          </Heading>
+        <View
+          backgroundColor="gray-50"
+          padding="size-100"
+          borderRadius="regular"
+        >
+          <View>
+            <Heading level={6} margin="0">
+              {onlyTooltipInfo ? "Data" : activeMetadataColumn}
+            </Heading>
+          </View>
+          <View>
+            <Text>
+              {onlyTooltipInfo
+                ? content.split("\n").map((line: string, i: number) => <div key={i}>{line}</div>)
+                : content}
+            </Text>
+          </View>
         </View>
-        <View>
-          <Text>
-            {onlyTooltipInfo
-              ? content.split("\n").map((line: string, i: number) => <div key={i}>{line}</div>)
-              : content}
-          </Text>
-        </View>
-      </View>
+      </div>
     </View>
   );
 }
