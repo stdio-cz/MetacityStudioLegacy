@@ -2,6 +2,29 @@ import { Heading, Text, View } from "@adobe/react-spectrum";
 import { useEditorContext } from "@features/editor/hooks/useEditorContext";
 import { useEffect, useRef, useState } from "react";
 
+// Function to detect URLs in text
+const detectUrls = (text: string) => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = text.split(urlRegex);
+  return parts.map((part, index) => {
+    if (part.match(urlRegex)) {
+      return (
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          style={{ color: "#0078D4", textDecoration: "underline" }}
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
 export function TooltipOverlay({ onlyTooltipInfo = false }: { onlyTooltipInfo?: boolean }) {
   const { tooltip, activeMetadataColumn } = useEditorContext();
   const [visibleTooltip, setVisibleTooltip] = useState(tooltip);
@@ -84,11 +107,7 @@ export function TooltipOverlay({ onlyTooltipInfo = false }: { onlyTooltipInfo?: 
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <View
-          backgroundColor="gray-50"
-          padding="size-100"
-          borderRadius="regular"
-        >
+        <View backgroundColor="gray-50" padding="size-100" borderRadius="regular">
           <View>
             <Heading level={6} margin="0">
               {onlyTooltipInfo ? "Data" : activeMetadataColumn}
@@ -97,8 +116,8 @@ export function TooltipOverlay({ onlyTooltipInfo = false }: { onlyTooltipInfo?: 
           <View>
             <Text>
               {onlyTooltipInfo
-                ? content.split("\n").map((line: string, i: number) => <div key={i}>{line}</div>)
-                : content}
+                ? content.split("\n").map((line: string, i: number) => <div key={i}>{detectUrls(line)}</div>)
+                : detectUrls(content)}
             </Text>
           </View>
         </View>
