@@ -1,3 +1,13 @@
+## [1.1.0](https://github.com/stdio-cz/MetacityStudioLegacy/compare/v1.0.6...v1.1.0) (2025-06-10)
+
+### Features
+
+* add property only tooltip info to embeds (with persistence to DB and GUI) ([d54d01d](https://github.com/stdio-cz/MetacityStudioLegacy/commit/d54d01dc1ebd72ef04d75e99932c568af6c7284b))
+* allow hover over tooltip ([fc7e8c8](https://github.com/stdio-cz/MetacityStudioLegacy/commit/fc7e8c8d543d1c4b486c6726fc153cd44423d956))
+* format urls in tooltip ([16352f3](https://github.com/stdio-cz/MetacityStudioLegacy/commit/16352f3092ca5634574e9bb8ecf5810b2107128c))
+* in embed viewer keep just free camera and top view ([6925b1e](https://github.com/stdio-cz/MetacityStudioLegacy/commit/6925b1e84c51ef679ae6e00156bc4b1c7eebb1cb))
+* modify tooltip to show multiple column information and hide column selector ([e5a5b49](https://github.com/stdio-cz/MetacityStudioLegacy/commit/e5a5b493c5ed7dc4d2debdad87b5618914950cad))
+* remove active column dropdown if only one and forbid change of column name in the dropdown ([5e17be9](https://github.com/stdio-cz/MetacityStudioLegacy/commit/5e17be988a2d98d08f714f3ffc9ef962c30d6f79))
 ## [1.0.6](https://github.com/stdio-cz/MetacityStudioLegacy/compare/v1.0.5...v1.0.6) (2025-02-03)
 
 ### Bug Fixes
