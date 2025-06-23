@@ -7,6 +7,7 @@ import ActiveColumnToolbar from "@features/editor-toolbar/components/ActiveColum
 import CameraViewToolbar from "@features/editor-toolbar/components/CameraViewToolbar";
 import ColorSchemeToolbar from "@features/editor-toolbar/components/ColorSchemeToolbar";
 import ProjectionToolbar from "@features/editor-toolbar/components/ProjectionToolbar";
+import ScreenshotToolbar from "@features/editor-toolbar/components/ScreenshotToolbar";
 import SelectionToolbar from "@features/editor-toolbar/components/SelectionToolbar";
 
 import { CanvasWrapper } from "@features/editor/components/Canvas/CanvasWrapper";
@@ -30,8 +31,8 @@ export default function Viewer(props: ViewerProps) {
       <TooltipOverlay onlyTooltipInfo={!!embed?.onlyTooltipInfo} />
       <View position="absolute" top="size-100" left="size-100">
         <Grid
-          areas={["projection camera selection scheme style"]}
-          columns={["auto auto auto auto"]}
+          areas={["projection camera selection scheme style screenshot"]}
+          columns={["auto auto auto auto auto"]}
           rows={["auto"]}
           gap="size-100"
           width="size-100"
@@ -41,6 +42,7 @@ export default function Viewer(props: ViewerProps) {
           <SelectionToolbar />
           <ColorSchemeToolbar />
           {!embed?.onlyTooltipInfo && <ActiveColumnToolbar />}
+          <ScreenshotToolbar />
         </Grid>
       </View>
     </View>

@@ -1,16 +1,10 @@
 "use client";
 
-import {
-  Grid,
-  Item,
-  TabList,
-  TabPanels,
-  Tabs,
-  View,
-} from "@adobe/react-spectrum";
+import { Grid, Item, TabList, TabPanels, Tabs, View } from "@adobe/react-spectrum";
 import { ToastContainer } from "@react-spectrum/toast";
 //import Brush from "@spectrum-icons/workflow/Brush";
 import { PositioningContainer } from "@core/components/PositioningContainer";
+import { MdiBookmark } from "@core/icons/MdiBookmark";
 import { MdiCube } from "@core/icons/MdiCube";
 import { MdiExport } from "@core/icons/MdiExport";
 import { MdiPalette } from "@core/icons/MdiPalette";
@@ -20,10 +14,12 @@ import EditorColumns from "@features/editor-metadata/components/EditorColumns";
 import EditorStyle from "@features/editor-metadata/components/EditorStyle";
 import useMetadataModelStyle from "@features/editor-metadata/hooks/useMetadataModelStyle";
 import EditorModels from "@features/editor-models/components/EditorModels";
+import { EditorSavedViews } from "@features/editor-saved-views";
 import ActiveColumnToolbar from "@features/editor-toolbar/components/ActiveColumnToolbar";
 import CameraViewToolbar from "@features/editor-toolbar/components/CameraViewToolbar";
 import ColorSchemeToolbar from "@features/editor-toolbar/components/ColorSchemeToolbar";
 import ProjectionToolbar from "@features/editor-toolbar/components/ProjectionToolbar";
+import ScreenshotToolbar from "@features/editor-toolbar/components/ScreenshotToolbar";
 import SelectionToolbar from "@features/editor-toolbar/components/SelectionToolbar";
 import { Allotment } from "allotment";
 import "allotment/dist/style.css";
@@ -47,8 +43,8 @@ export default function Editor(props: EditorProps) {
           <TooltipOverlay />
           <View position="absolute" top="size-100" left="size-100">
             <Grid
-              areas={["projection camera selection scheme style"]}
-              columns={["auto auto auto auto"]}
+              areas={["projection camera selection scheme style screenshot"]}
+              columns={["auto auto auto auto auto"]}
               rows={["auto"]}
               gap="size-100"
               width="size-100"
@@ -58,6 +54,7 @@ export default function Editor(props: EditorProps) {
               <SelectionToolbar />
               <ColorSchemeToolbar />
               <ActiveColumnToolbar />
+              <ScreenshotToolbar />
             </Grid>
           </View>
         </View>
@@ -74,11 +71,7 @@ function SidePanel(props: SidePanelProps) {
   return (
     <PositioningContainer>
       <Tabs height="100%" aria-label="Editor tabs" orientation="vertical">
-        <View
-          borderBottomWidth="thin"
-          borderBottomColor="light"
-          backgroundColor="gray-50"
-        >
+        <View borderBottomWidth="thin" borderBottomColor="light" backgroundColor="gray-50">
           <TabList
             UNSAFE_style={{
               paddingRight: "var(--spectrum-global-dimension-size-50)",
@@ -92,6 +85,9 @@ function SidePanel(props: SidePanelProps) {
             </Item>
             <Item key="style" textValue="Style">
               <MdiPalette />
+            </Item>
+            <Item key="views" textValue="Saved Views">
+              <MdiBookmark />
             </Item>
             <Item key="exports" textValue="Exports">
               <MdiExport />
@@ -116,6 +112,9 @@ function SidePanel(props: SidePanelProps) {
             </Item>
             <Item key="style">
               <EditorStyle {...props} />
+            </Item>
+            <Item key="views">
+              <EditorSavedViews {...props} />
             </Item>
             <Item key="exports">
               <EditorExports {...props} />
