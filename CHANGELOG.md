@@ -1,3 +1,11 @@
+## [1.2.0](https://github.com/stdio-cz/MetacityStudioLegacy/compare/v1.1.0...v1.2.0) (2025-06-23)
+
+### Features
+
+* add save views api and change layout ([8e2569e](https://github.com/stdio-cz/MetacityStudioLegacy/commit/8e2569e082b224f043f76aa6574da6df294642f7))
+* add screenshot function and bookmark views (layout) ([596f0b6](https://github.com/stdio-cz/MetacityStudioLegacy/commit/596f0b635973cac11fa4af2a48484ba5fd39216f))
+* save views persisted and loaded correctly with zoom ([5f3c2d4](https://github.com/stdio-cz/MetacityStudioLegacy/commit/5f3c2d4a0d70c4bfc228b2a816d5d5e82baf83c4))
+* update tooltip rendering ([0201a90](https://github.com/stdio-cz/MetacityStudioLegacy/commit/0201a90e045e86b8774daf547a5220a5ef904921))
 ## [1.1.0](https://github.com/stdio-cz/MetacityStudioLegacy/compare/v1.0.6...v1.1.0) (2025-06-10)
 
 ### Features
