@@ -3,7 +3,8 @@ import { useEditorContext } from "@features/editor/hooks/useEditorContext";
 import { useEffect, useRef, useState } from "react";
 
 // Function to detect URLs in text
-const detectUrls = (text: string) => {
+const detectUrls = (text: string | number | null | undefined) => {
+  if (typeof text !== "string") text = String(text ?? "");
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const parts = text.split(urlRegex);
   return parts.map((part, index) => {
@@ -76,9 +77,10 @@ export function TooltipOverlay({ onlyTooltipInfo = false }: { onlyTooltipInfo?: 
 
   let content;
   if (onlyTooltipInfo) {
-    content = Object.entries(visibleTooltip.data)
-      .map(([key, value]) => `${key}: ${value ?? "N/A"}`)
-      .join("\n");
+    content = Object.entries(visibleTooltip.data).map(([key, value]) => ({
+      key,
+      value: value ?? "N/A",
+    }));
   } else {
     content = visibleTooltip.data[activeMetadataColumn] ?? "N/A";
   }
@@ -108,16 +110,27 @@ export function TooltipOverlay({ onlyTooltipInfo = false }: { onlyTooltipInfo?: 
         onMouseLeave={handleMouseLeave}
       >
         <View backgroundColor="gray-50" padding="size-100" borderRadius="regular">
-          <View>
-            <Heading level={6} margin="0">
-              {onlyTooltipInfo ? "Data" : activeMetadataColumn}
-            </Heading>
-          </View>
+          {!onlyTooltipInfo && (
+            <View>
+              <Heading level={6} margin="0">
+                {activeMetadataColumn}
+              </Heading>
+            </View>
+          )}
           <View>
             <Text>
-              {onlyTooltipInfo
-                ? content.split("\n").map((line: string, i: number) => <div key={i}>{detectUrls(line)}</div>)
-                : detectUrls(content)}
+              {onlyTooltipInfo ? (
+                <div style={{ display: "table" }}>
+                  {content.map((item: { key: string; value: string }, i: number) => (
+                    <div key={i} style={{ display: "table-row" }}>
+                      <div style={{ display: "table-cell", fontWeight: "bold", paddingRight: 8 }}>{item.key}:</div>
+                      <div style={{ display: "table-cell" }}>{detectUrls(item.value)}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                detectUrls(content)
+              )}
             </Text>
           </View>
         </View>
