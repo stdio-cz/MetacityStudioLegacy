@@ -3,13 +3,15 @@
 import {
   ActionBar,
   ActionBarContainer,
-  ActionMenu,
+  ActionGroup,
   Button,
   Flex,
   Item,
   ListView,
   Text,
   TextField,
+  Tooltip,
+  TooltipTrigger,
   View,
 } from "@adobe/react-spectrum";
 import { NoData } from "@core/components/Empty";
@@ -17,60 +19,72 @@ import { PositioningContainer } from "@core/components/PositioningContainer";
 import { MdiBookmark } from "@core/icons/MdiBookmark";
 import { MdiRename } from "@core/icons/MdiRename";
 import { MdiTrash } from "@core/icons/MdiTrash";
-import { Key, useCallback, useState } from "react";
-
-type SavedView = {
-  id: string;
-  name: string;
-  cameraPosition: [number, number, number];
-  cameraTarget: [number, number, number];
-  timestamp: Date;
-};
+import { SavedView } from "@features/db/entities/savedView";
+import { useSavedViews } from "@features/saved-views/hooks/useSavedViews";
+import { Key, useCallback, useEffect, useState } from "react";
 
 type EditorSavedViewsProps = {
   projectId: number;
 };
 
 export default function EditorSavedViews({ projectId }: EditorSavedViewsProps) {
-  const [savedViews, setSavedViews] = useState<SavedView[]>([]);
+  const { savedViews, loading, error, fetchSavedViews, createView, updateView, deleteView } = useSavedViews(projectId);
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [editingView, setEditingView] = useState<SavedView | null>(null);
-  const [newViewName, setNewViewName] = useState("");
+  const [newViewName, setNewViewName] = useState<string>("Untitled View");
+
+  useEffect(() => {
+    fetchSavedViews();
+  }, [fetchSavedViews]);
 
   const handleSelection = useCallback((keys: any) => {
     setSelectedKeys(keys);
   }, []);
 
-  const handleSaveCurrentView = useCallback(() => {
-    // TODO: Get current camera position from the editor context
-    const newView: SavedView = {
-      id: Date.now().toString(),
-      name: newViewName || `View ${savedViews.length + 1}`,
-      cameraPosition: [0, 0, 10], // TODO: Get from camera
-      cameraTarget: [0, 0, 0], // TODO: Get from camera
-      timestamp: new Date(),
-    };
-
-    setSavedViews((prev) => [...prev, newView]);
-    setNewViewName("");
-  }, [newViewName, savedViews.length]);
+  const handleSaveCurrentView = useCallback(async () => {
+    try {
+      // TODO: Get current camera position from the editor context
+      await createView(
+        newViewName || `View ${savedViews.length + 1}`,
+        [0, 0, 10], // TODO: Get from camera
+        [0, 0, 0], // TODO: Get from camera
+      );
+      setNewViewName("Untitled View");
+    } catch (err) {
+      console.error("Failed to save view:", err);
+    }
+  }, [newViewName, savedViews.length, createView]);
 
   const handleLoadView = useCallback((view: SavedView) => {
     // TODO: Set camera position in the editor context
     console.log("Loading view:", view);
   }, []);
 
-  const handleDeleteView = useCallback((view: SavedView) => {
-    setSavedViews((prev) => prev.filter((v) => v.id !== view.id));
-  }, []);
+  const handleDeleteView = useCallback(
+    async (view: SavedView) => {
+      try {
+        await deleteView(view.id);
+      } catch (err) {
+        console.error("Failed to delete view:", err);
+      }
+    },
+    [deleteView],
+  );
 
-  const handleRenameView = useCallback((view: SavedView, newName: string) => {
-    setSavedViews((prev) => prev.map((v) => (v.id === view.id ? { ...v, name: newName } : v)));
-    setEditingView(null);
-  }, []);
+  const handleRenameView = useCallback(
+    async (view: SavedView, newName: string) => {
+      try {
+        await updateView(view.id, { name: newName });
+        setEditingView(null);
+      } catch (err) {
+        console.error("Failed to rename view:", err);
+      }
+    },
+    [updateView],
+  );
 
-  const dispatchAction = useCallback(
-    (view: SavedView, key: Key) => {
+  const handleItemAction = useCallback(
+    (key: Key, view: SavedView) => {
       switch (key) {
         case "load":
           handleLoadView(view);
@@ -88,20 +102,33 @@ export default function EditorSavedViews({ projectId }: EditorSavedViewsProps) {
 
   const selectedCount = selectedKeys.size;
 
+  if (loading) {
+    return (
+      <PositioningContainer>
+        <Flex direction="column" height="100%" gap="size-100" marginX="size-200">
+          <Text>Loading saved views...</Text>
+        </Flex>
+      </PositioningContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <PositioningContainer>
+        <Flex direction="column" height="100%" gap="size-100" marginX="size-200">
+          <Text>Error: {error}</Text>
+        </Flex>
+      </PositioningContainer>
+    );
+  }
+
   return (
     <PositioningContainer>
       <Flex direction="column" height="100%" gap="size-100" marginX="size-200">
         <View position="relative" overflow="hidden" marginTop="size-200">
           <Flex gap="size-100" alignItems="end">
-            <TextField
-              label="View name"
-              value={newViewName}
-              onChange={setNewViewName}
-              placeholder="Enter view name"
-              width="size-3000"
-            />
+            <TextField label="View Name" value={newViewName} onChange={setNewViewName} width="size-3000" />
             <Button variant="primary" onPress={handleSaveCurrentView} isDisabled={!newViewName.trim()}>
-              <MdiBookmark />
               <Text>Save View</Text>
             </Button>
           </Flex>
@@ -153,42 +180,36 @@ export default function EditorSavedViews({ projectId }: EditorSavedViewsProps) {
               renderEmptyState={() => <NoData heading="No saved views" />}
             >
               {(view) => (
-                <Item key={view.id} textValue={view.name}>
-                  <Flex alignItems="center" gap="size-100" width="100%">
-                    <MdiBookmark />
-                    <Flex direction="column" flex>
-                      <Text>{view.name}</Text>
-                      <Text
-                        UNSAFE_style={{
-                          fontSize: "var(--spectrum-global-dimension-font-size-75)",
-                          color: "var(--spectrum-global-color-gray-500)",
-                        }}
-                      >
-                        {view.timestamp.toLocaleDateString()}
-                      </Text>
-                    </Flex>
-                    <ActionMenu onAction={(key) => dispatchAction(view, key)}>
+                <Item key={view.id.toString()} textValue={view.name}>
+                  <Text>{view.name}</Text>
+
+                  <ActionGroup isQuiet onAction={(key) => handleItemAction(key, view)}>
+                    <TooltipTrigger delay={0} placement="bottom">
                       <Item key="load" textValue="Load view">
                         <MdiBookmark />
-                        <Text>Load view</Text>
                       </Item>
+                      <Tooltip>Load view</Tooltip>
+                    </TooltipTrigger>
+                    <TooltipTrigger delay={0} placement="bottom">
                       <Item key="rename" textValue="Rename view">
                         <MdiRename />
-                        <Text>Rename view</Text>
                       </Item>
+                      <Tooltip>Rename view</Tooltip>
+                    </TooltipTrigger>
+                    <TooltipTrigger delay={0} placement="bottom">
                       <Item key="delete" textValue="Delete view">
                         <MdiTrash />
-                        <Text>Delete view</Text>
                       </Item>
-                    </ActionMenu>
-                  </Flex>
+                      <Tooltip>Delete view</Tooltip>
+                    </TooltipTrigger>
+                  </ActionGroup>
                 </Item>
               )}
             </ListView>
-            {selectedCount > 0 && (
+            {selectedKeys.size > 0 && (
               <ActionBar
                 isEmphasized
-                selectedItemCount={selectedCount}
+                selectedItemCount={selectedKeys.size}
                 onClearSelection={() => setSelectedKeys(new Set())}
               >
                 <Item key="delete">
