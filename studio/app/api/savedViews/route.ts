@@ -1,3 +1,4 @@
+import { ProjectionType } from "@features/bananagl/camera/cameraInterface";
 import { SavedView } from "@features/db/entities/savedView";
 import { injectRepository } from "@features/db/helpers";
 import { z } from "zod";
@@ -6,6 +7,12 @@ const postSchema = z.object({
   name: z.string().min(1),
   cameraPosition: z.array(z.number()).length(3),
   cameraTarget: z.array(z.number()).length(3),
+  projectionType: z.nativeEnum(ProjectionType),
+  fovYRadian: z.number(),
+  orthographicLeft: z.number(),
+  orthographicRight: z.number(),
+  orthographicBottom: z.number(),
+  orthographicTop: z.number(),
   projectId: z.number(),
 });
 
@@ -41,6 +48,12 @@ export async function POST(req: Request) {
       name: data.name,
       cameraPosition: data.cameraPosition,
       cameraTarget: data.cameraTarget,
+      projectionType: data.projectionType,
+      fovYRadian: data.fovYRadian,
+      orthographicLeft: data.orthographicLeft,
+      orthographicRight: data.orthographicRight,
+      orthographicBottom: data.orthographicBottom,
+      orthographicTop: data.orthographicTop,
       project: { id: data.projectId },
     });
 

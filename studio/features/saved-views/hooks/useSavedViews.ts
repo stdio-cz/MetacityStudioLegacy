@@ -1,3 +1,4 @@
+import { ProjectionType } from "@features/bananagl/camera/cameraInterface";
 import { SavedView } from "@features/db/entities/savedView";
 import { useCallback, useState } from "react";
 import { createSavedView } from "../mutations/createSavedView";
@@ -24,13 +25,29 @@ export function useSavedViews(projectId: number) {
   }, [projectId]);
 
   const createView = useCallback(
-    async (name: string, cameraPosition: [number, number, number], cameraTarget: [number, number, number]) => {
+    async (
+      name: string,
+      cameraPosition: [number, number, number],
+      cameraTarget: [number, number, number],
+      projectionType: ProjectionType,
+      fovYRadian: number,
+      orthographicLeft: number,
+      orthographicRight: number,
+      orthographicBottom: number,
+      orthographicTop: number,
+    ) => {
       try {
         setError(null);
         const newView = await createSavedView({
           name,
           cameraPosition,
           cameraTarget,
+          projectionType,
+          fovYRadian,
+          orthographicLeft,
+          orthographicRight,
+          orthographicBottom,
+          orthographicTop,
           projectId,
         });
         setSavedViews((prev) => [newView, ...prev]);
@@ -46,7 +63,17 @@ export function useSavedViews(projectId: number) {
   const updateView = useCallback(
     async (
       id: number,
-      data: { name?: string; cameraPosition?: [number, number, number]; cameraTarget?: [number, number, number] },
+      data: {
+        name?: string;
+        cameraPosition?: [number, number, number];
+        cameraTarget?: [number, number, number];
+        projectionType?: ProjectionType;
+        fovYRadian?: number;
+        orthographicLeft?: number;
+        orthographicRight?: number;
+        orthographicBottom?: number;
+        orthographicTop?: number;
+      },
     ) => {
       try {
         setError(null);

@@ -1,9 +1,16 @@
+import { ProjectionType } from "@features/bananagl/camera/cameraInterface";
 import { SavedView } from "@features/db/entities/savedView";
 
 type CreateSavedViewData = {
   name: string;
   cameraPosition: [number, number, number];
   cameraTarget: [number, number, number];
+  projectionType: ProjectionType;
+  fovYRadian: number;
+  orthographicLeft: number;
+  orthographicRight: number;
+  orthographicBottom: number;
+  orthographicTop: number;
   projectId: number;
 };
 

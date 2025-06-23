@@ -6,6 +6,7 @@ import { Embed } from "./entities/embed";
 import { Model } from "./entities/model";
 import { Project } from "./entities/project";
 import { ProjectVersion } from "./entities/projectVersion";
+import { SavedView } from "./entities/savedView";
 import { User } from "./entities/user";
 
 export const AppDataSource = new DataSource({
@@ -15,7 +16,7 @@ export const AppDataSource = new DataSource({
   username: Config.db.username,
   password: Config.db.password,
   database: Config.db.database,
-  entities: [Project, User, Model, Embed, ProjectVersion],
+  entities: [Project, User, Model, Embed, ProjectVersion, SavedView],
   namingStrategy: new SnakeNamingStrategy(),
   logging: ["error"],
   subscribers: [],

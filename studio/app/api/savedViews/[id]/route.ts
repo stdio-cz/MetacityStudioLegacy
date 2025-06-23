@@ -1,3 +1,4 @@
+import { ProjectionType } from "@features/bananagl/camera/cameraInterface";
 import { SavedView } from "@features/db/entities/savedView";
 import { injectRepository } from "@features/db/helpers";
 import { z } from "zod";
@@ -6,6 +7,12 @@ const putSchema = z.object({
   name: z.string().min(1).optional(),
   cameraPosition: z.array(z.number()).length(3).optional(),
   cameraTarget: z.array(z.number()).length(3).optional(),
+  projectionType: z.nativeEnum(ProjectionType).optional(),
+  fovYRadian: z.number().optional(),
+  orthographicLeft: z.number().optional(),
+  orthographicRight: z.number().optional(),
+  orthographicBottom: z.number().optional(),
+  orthographicTop: z.number().optional(),
 });
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {

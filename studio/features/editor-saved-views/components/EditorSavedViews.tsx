@@ -19,7 +19,9 @@ import { PositioningContainer } from "@core/components/PositioningContainer";
 import { MdiBookmark } from "@core/icons/MdiBookmark";
 import { MdiRename } from "@core/icons/MdiRename";
 import { MdiTrash } from "@core/icons/MdiTrash";
+import { ProjectionType } from "@features/bananagl/camera/cameraInterface";
 import { SavedView } from "@features/db/entities/savedView";
+import { useEditorContext } from "@features/editor/hooks/useEditorContext";
 import { useSavedViews } from "@features/saved-views/hooks/useSavedViews";
 import { Key, useCallback, useEffect, useState } from "react";
 
@@ -29,6 +31,7 @@ type EditorSavedViewsProps = {
 
 export default function EditorSavedViews({ projectId }: EditorSavedViewsProps) {
   const { savedViews, loading, error, fetchSavedViews, createView, updateView, deleteView } = useSavedViews(projectId);
+  const { renderer, activeView } = useEditorContext();
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [editingView, setEditingView] = useState<SavedView | null>(null);
   const [newViewName, setNewViewName] = useState<string>("Untitled View");
@@ -43,22 +46,86 @@ export default function EditorSavedViews({ projectId }: EditorSavedViewsProps) {
 
   const handleSaveCurrentView = useCallback(async () => {
     try {
-      // TODO: Get current camera position from the editor context
+      // Get current camera position from the editor context (same as embed export)
+      const view = renderer.views?.[activeView];
+      if (!view) {
+        console.error("No active view found");
+        return;
+      }
+
+      const cameraPosition: [number, number, number] = [
+        view.view.camera.position[0],
+        view.view.camera.position[1],
+        view.view.camera.position[2],
+      ];
+
+      const cameraTarget: [number, number, number] = [
+        view.view.camera.target[0],
+        view.view.camera.target[1],
+        view.view.camera.target[2],
+      ];
+
+      // Capture zoom-related data
+      const projectionType = view.view.camera.projectionType;
+      const fovYRadian = view.view.camera.fovYRadian;
+
+      // Get orthographic bounds using the getter methods from the camera class
+      const orthographicLeft = view.view.camera.orthographicLeft;
+      const orthographicRight = view.view.camera.orthographicRight;
+      const orthographicBottom = view.view.camera.orthographicBottom;
+      const orthographicTop = view.view.camera.orthographicTop;
+
       await createView(
         newViewName || `View ${savedViews.length + 1}`,
-        [0, 0, 10], // TODO: Get from camera
-        [0, 0, 0], // TODO: Get from camera
+        cameraPosition,
+        cameraTarget,
+        projectionType,
+        fovYRadian,
+        orthographicLeft,
+        orthographicRight,
+        orthographicBottom,
+        orthographicTop,
       );
       setNewViewName("Untitled View");
     } catch (err) {
       console.error("Failed to save view:", err);
     }
-  }, [newViewName, savedViews.length, createView]);
+  }, [newViewName, savedViews.length, createView, renderer.views, activeView]);
 
-  const handleLoadView = useCallback((view: SavedView) => {
-    // TODO: Set camera position in the editor context
-    console.log("Loading view:", view);
-  }, []);
+  const handleLoadView = useCallback(
+    (view: SavedView) => {
+      // Set camera position in the editor context (same as embed export)
+      const currentView = renderer.views?.[activeView];
+      if (!currentView) {
+        console.error("No active view found");
+        return;
+      }
+
+      // Set camera position and target to the saved view values
+      currentView.view.camera.set({
+        position: view.cameraPosition,
+        target: view.cameraTarget,
+        projectionType: view.projectionType,
+        fovYRadian: view.fovYRadian,
+      });
+
+      // For orthographic projection, set the saved orthographic bounds
+      if (view.projectionType === ProjectionType.ORTHOGRAPHIC) {
+        currentView.view.camera.setOrthographicBounds(
+          view.orthographicLeft,
+          view.orthographicRight,
+          view.orthographicBottom,
+          view.orthographicTop,
+        );
+      }
+
+      // Update the camera matrices to reflect the new position
+      currentView.view.camera.updateProjectionViewMatrix();
+
+      console.log("Loaded view:", view.name);
+    },
+    [renderer.views, activeView],
+  );
 
   const handleDeleteView = useCallback(
     async (view: SavedView) => {
