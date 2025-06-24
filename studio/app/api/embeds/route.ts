@@ -18,6 +18,11 @@ export async function POST(req: Request) {
     console.log("savedViewIds values:", formData.getAll("savedViewIds"));
     console.log("onlyTooltipInfo value:", formData.get("onlyTooltipInfo"));
 
+    // Normalize savedViewIds to always be an array
+    const allSavedViewIds = formData.getAll("savedViewIds");
+    formData.delete("savedViewIds");
+    allSavedViewIds.forEach((id) => formData.append("savedViewIds", id));
+
     const data = postSchema.parse(formData);
     console.log("Parsed data:", {
       projectId: data.projectId,
