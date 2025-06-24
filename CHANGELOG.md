@@ -1,3 +1,8 @@
+## [1.3.0](https://github.com/stdio-cz/MetacityStudioLegacy/compare/v1.2.0...v1.3.0) (2025-06-24)
+
+### Features
+
+* add views to embed viewer ([#5](https://github.com/stdio-cz/MetacityStudioLegacy/issues/5)) ([c7ae13c](https://github.com/stdio-cz/MetacityStudioLegacy/commit/c7ae13cb5c1477fb65566ef80a750d1ee347b86e))
 ## [1.2.0](https://github.com/stdio-cz/MetacityStudioLegacy/compare/v1.1.0...v1.2.0) (2025-06-23)
 
 ### Features
