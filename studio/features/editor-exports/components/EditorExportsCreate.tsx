@@ -23,28 +23,40 @@ import uploadEmbed from "@features/api-sdk/uploadEmbed";
 import useMetadataContext from "@features/editor-metadata/hooks/useMetadataContext";
 import useExportEmbed from "@features/editor/hooks/useExportModels";
 import { useRenderer } from "@features/editor/hooks/useRender";
-import { useCallback, useState } from "react";
+import { useSavedViews } from "@features/saved-views/hooks/useSavedViews";
+import { useCallback, useEffect, useState } from "react";
 
 type EditorExportsCreateProps = {
   sanitizedId: number;
 };
 
-export default function EditorExportsCreate({
-  sanitizedId,
-}: EditorExportsCreateProps) {
+export default function EditorExportsCreate({ sanitizedId }: EditorExportsCreateProps) {
   const { columns } = useMetadataContext();
+  const { savedViews, fetchSavedViews } = useSavedViews(sanitizedId);
 
   const [name, setName] = useState<string>("Untitled Embed");
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  const [selectedSavedViewKeys, setSelectedSavedViewKeys] = useState<string[]>([]);
   const [isSavingDialogOpen, setIsSavingDialogOpen] = useState(false);
   const [onlyTooltipInfo, setOnlyTooltipInfo] = useState(false);
 
   const exportEmbeds = useExportEmbed();
   const renderer = useRenderer();
 
+  useEffect(() => {
+    fetchSavedViews();
+  }, [fetchSavedViews]);
+
   const saveEmbed = useCallback(() => {
     async function handleUploadEmbed(dataFile: File, thumbnailFileContents: string) {
-      await uploadEmbed(sanitizedId, dataFile, thumbnailFileContents, name, onlyTooltipInfo);
+      await uploadEmbed(
+        sanitizedId,
+        dataFile,
+        thumbnailFileContents,
+        name,
+        onlyTooltipInfo,
+        selectedSavedViewKeys.map((id) => parseInt(id)),
+      );
 
       setIsSavingDialogOpen(false);
     }
@@ -62,7 +74,7 @@ export default function EditorExportsCreate({
       //upload project version
       void handleUploadEmbed(dataFile, image);
     };
-  }, [sanitizedId, name, exportEmbeds, renderer, selectedKeys, onlyTooltipInfo]);
+  }, [sanitizedId, name, exportEmbeds, renderer, selectedKeys, selectedSavedViewKeys, onlyTooltipInfo]);
 
   const handleGlobalAction = useCallback(
     (key: Key) => {
@@ -77,27 +89,62 @@ export default function EditorExportsCreate({
     <PositioningContainer>
       <Flex direction="column" height="100%" marginX="size-200">
         <View width="100%" marginTop="size-200" marginBottom="size-100">
-          <TextField
-            label="Export Name"
-            width="100%"
-            value={name}
-            onChange={setName}
-          />
+          <TextField label="Export Name" width="100%" value={name} onChange={setName} />
           <Checkbox isSelected={onlyTooltipInfo} onChange={setOnlyTooltipInfo} marginTop="size-200">
-          Only include tooltip information
+            Only include tooltip information
           </Checkbox>
         </View>
+
+        {/* Saved Views Selection */}
         <View width="100%" marginBottom="size-50">
           <Text
             UNSAFE_style={{
-              fontSize:
-                "var(--spectrum-fieldlabel-text-size, var(--spectrum-global-dimension-font-size-75))",
-              fontWeight:
-                "var(--spectrum-fieldlabel-text-font-weight, var(--spectrum-global-font-weight-regular))",
-              lineHeight:
-                "var(--spectrum-fieldlabel-text-line-height, var(--spectrum-global-font-line-height-small))",
-              color:
-                "var(--spectrum-fieldlabel-text-color, var(--spectrum-alias-label-text-color))",
+              fontSize: "var(--spectrum-fieldlabel-text-size, var(--spectrum-global-dimension-font-size-75))",
+              fontWeight: "var(--spectrum-fieldlabel-text-font-weight, var(--spectrum-global-font-weight-regular))",
+              lineHeight: "var(--spectrum-fieldlabel-text-line-height, var(--spectrum-global-font-line-height-small))",
+              color: "var(--spectrum-fieldlabel-text-color, var(--spectrum-alias-label-text-color))",
+              WebkitFontSmoothing: "subpixel-antialiased",
+              MozOsxFontSmoothing: "auto",
+              fontSmooth: "subpixel-antialiased",
+            }}
+          >
+            Choose saved views to include (optional)
+          </Text>
+        </View>
+        <View position="relative" height="size-1000" overflow="hidden" marginBottom="size-200">
+          <ActionBarContainer height="100%" width="100%">
+            <ListView
+              aria-label="Saved views list"
+              width="100%"
+              height="100%"
+              items={savedViews}
+              selectionMode="multiple"
+              selectedKeys={selectedSavedViewKeys}
+              onSelectionChange={(keys) => {
+                if (keys === "all") {
+                  setSelectedSavedViewKeys(savedViews.map((item) => item.id.toString()));
+                } else {
+                  setSelectedSavedViewKeys(Array.from(keys) as string[]);
+                }
+              }}
+            >
+              {(item) => (
+                <Item key={item.id.toString()} textValue={item.name}>
+                  <Text>{item.name}</Text>
+                </Item>
+              )}
+            </ListView>
+          </ActionBarContainer>
+        </View>
+
+        {/* Columns Selection */}
+        <View width="100%" marginBottom="size-50">
+          <Text
+            UNSAFE_style={{
+              fontSize: "var(--spectrum-fieldlabel-text-size, var(--spectrum-global-dimension-font-size-75))",
+              fontWeight: "var(--spectrum-fieldlabel-text-font-weight, var(--spectrum-global-font-weight-regular))",
+              lineHeight: "var(--spectrum-fieldlabel-text-line-height, var(--spectrum-global-font-line-height-small))",
+              color: "var(--spectrum-fieldlabel-text-color, var(--spectrum-alias-label-text-color))",
               WebkitFontSmoothing: "subpixel-antialiased",
               MozOsxFontSmoothing: "auto",
               fontSmooth: "subpixel-antialiased",
@@ -106,13 +153,7 @@ export default function EditorExportsCreate({
             Choose columns to export
           </Text>
         </View>
-        <View
-          position="relative"
-          flex
-          height="100%"
-          overflow="hidden"
-          marginBottom="size-200"
-        >
+        <View position="relative" flex height="100%" overflow="hidden" marginBottom="size-200">
           <ActionBarContainer height="100%" width="100%">
             <ListView
               aria-label="Column list"
