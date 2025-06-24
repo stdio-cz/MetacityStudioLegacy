@@ -1,3 +1,8 @@
+## [1.3.1](https://github.com/stdio-cz/MetacityStudioLegacy/compare/v1.3.0...v1.3.1) (2025-06-24)
+
+### Bug Fixes
+
+* selected only one view to export threw error ([97d70b9](https://github.com/stdio-cz/MetacityStudioLegacy/commit/97d70b9a33fc7cec2a8f5e04d47ead83066d4113))
 ## [1.3.0](https://github.com/stdio-cz/MetacityStudioLegacy/compare/v1.2.0...v1.3.0) (2025-06-24)
 
 ### Features
