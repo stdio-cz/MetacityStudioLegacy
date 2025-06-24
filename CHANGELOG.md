@@ -1,3 +1,8 @@
+## [1.3.2](https://github.com/stdio-cz/MetacityStudioLegacy/compare/v1.3.1...v1.3.2) (2025-06-24)
+
+### Bug Fixes
+
+* validation error in embed selection of views ([8f524c0](https://github.com/stdio-cz/MetacityStudioLegacy/commit/8f524c05af73365de8075118484ddf9b55ef17c9))
 ## [1.3.1](https://github.com/stdio-cz/MetacityStudioLegacy/compare/v1.3.0...v1.3.1) (2025-06-24)
 
 ### Bug Fixes
