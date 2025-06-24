@@ -1,7 +1,5 @@
 "use server";
 
-import { canReadProjects } from "@features/auth/acl";
-import { getUserToken } from "@features/auth/user";
 import { Embed } from "@features/db/entities/embed";
 import { injectRepository } from "@features/db/helpers";
 import { toPlain } from "@features/helpers/objects";
@@ -11,6 +9,7 @@ export default async function getEmbed(id: number) {
 
   const embed = await embedRepository.findOne({
     where: { id },
+    relations: ["savedViews"],
   });
 
   if (!embed) throw new Error("Not found");

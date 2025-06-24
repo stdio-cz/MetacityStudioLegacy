@@ -6,6 +6,7 @@ export default async function uploadEmbed(
   thumbnailFileContents: string,
   name: string,
   onlyTooltipInfo?: boolean,
+  savedViewIds?: number[],
 ) {
   const formData = new FormData();
 
@@ -15,7 +16,31 @@ export default async function uploadEmbed(
   formData.append("name", name);
   if (onlyTooltipInfo) formData.append("onlyTooltipInfo", "on");
 
-  const response = await axios.post("/api/embeds", formData);
+  // Add saved view IDs to form data
+  if (savedViewIds && savedViewIds.length > 0) {
+    savedViewIds.forEach((id) => {
+      formData.append("savedViewIds", id.toString());
+    });
+  }
 
-  return response;
+  console.log("Uploading embed with data:", {
+    projectId,
+    name,
+    onlyTooltipInfo,
+    savedViewIds,
+    formDataKeys: Array.from(formData.keys()),
+  });
+
+  try {
+    const response = await axios.post("/api/embeds", formData);
+    console.log("Upload successful:", response.data);
+    return response;
+  } catch (error) {
+    console.error("Upload failed:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error("Response data:", error.response.data);
+      console.error("Response status:", error.response.status);
+    }
+    throw error;
+  }
 }
