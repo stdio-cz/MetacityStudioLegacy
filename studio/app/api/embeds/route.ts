@@ -1,14 +1,13 @@
 import { createEmbed } from "@features/embeds/mutations/createEmbed";
 import { z } from "zod";
-import { zfd } from "zod-form-data";
 
-const postSchema = zfd.formData({
-  dataFile: zfd.file(),
-  thumbnailFileContents: zfd.text(),
-  projectId: zfd.numeric(),
-  name: zfd.text(),
-  onlyTooltipInfo: zfd.checkbox().optional(),
-  savedViewIds: z.array(z.coerce.number()).optional(),
+const postSchema = z.object({
+  dataFile: z.instanceof(File),
+  thumbnailFileContents: z.string(),
+  projectId: z.number(),
+  name: z.string(),
+  onlyTooltipInfo: z.boolean().optional(),
+  savedViewIds: z.array(z.number()).optional(),
 });
 
 export async function POST(req: Request) {
@@ -18,12 +17,26 @@ export async function POST(req: Request) {
     console.log("savedViewIds values:", formData.getAll("savedViewIds"));
     console.log("onlyTooltipInfo value:", formData.get("onlyTooltipInfo"));
 
-    // Normalize savedViewIds to always be an array
-    const allSavedViewIds = formData.getAll("savedViewIds");
-    formData.delete("savedViewIds");
-    allSavedViewIds.forEach((id) => formData.append("savedViewIds", id));
+    // Manually parse form data to handle savedViewIds correctly
+    const dataFile = formData.get("dataFile") as File;
+    const thumbnailFileContents = formData.get("thumbnailFileContents") as string;
+    const projectId = parseInt(formData.get("projectId") as string);
+    const name = formData.get("name") as string;
+    const onlyTooltipInfo = formData.get("onlyTooltipInfo") === "on";
 
-    const data = postSchema.parse(formData);
+    // Handle savedViewIds - convert to array of numbers
+    const savedViewIdsRaw = formData.getAll("savedViewIds");
+    const savedViewIds = savedViewIdsRaw.length > 0 ? savedViewIdsRaw.map((id) => parseInt(id as string)) : undefined;
+
+    const data = postSchema.parse({
+      dataFile,
+      thumbnailFileContents,
+      projectId,
+      name,
+      onlyTooltipInfo,
+      savedViewIds,
+    });
+
     console.log("Parsed data:", {
       projectId: data.projectId,
       name: data.name,
@@ -37,7 +50,7 @@ export async function POST(req: Request) {
       data.dataFile,
       data.thumbnailFileContents,
       data.onlyTooltipInfo ?? false,
-      Array.isArray(data.savedViewIds) ? data.savedViewIds : [],
+      data.savedViewIds ?? [],
     );
 
     return Response.json(model, { status: 201 });

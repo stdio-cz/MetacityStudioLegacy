@@ -2,7 +2,7 @@ import { Item, Picker, Tooltip, TooltipTrigger, View } from "@adobe/react-spectr
 import { ProjectionType } from "@features/bananagl/camera/cameraInterface";
 import { SavedView } from "@features/db/entities/savedView";
 import { useEditorContext } from "@features/editor/hooks/useEditorContext";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 type SavedViewsToolbarProps = {
   savedViews?: SavedView[];
@@ -11,14 +11,14 @@ type SavedViewsToolbarProps = {
 
 export default function SavedViewsToolbar({ savedViews = [], embedMode = false }: SavedViewsToolbarProps) {
   const { renderer, activeView } = useEditorContext();
+  const [selectedViewId, setSelectedViewId] = useState<string | number | null>(null);
 
   const handleSelectionChange = useCallback(
     (selectedKey: string | number) => {
       if (!selectedKey) return;
 
-      const selectedView = savedViews.find((view) => view.id.toString() === selectedKey.toString());
-
-      if (!selectedView) return;
+      const view = savedViews.find((v) => v.id.toString() === selectedKey.toString());
+      if (!view) return;
 
       // Set camera position in the editor context
       const currentView = renderer.views?.[activeView];
@@ -27,28 +27,31 @@ export default function SavedViewsToolbar({ savedViews = [], embedMode = false }
         return;
       }
 
-      // Set camera position and target to the saved view values
+      // Always reset to the exact database values, regardless of current state
       currentView.view.camera.set({
-        position: selectedView.cameraPosition,
-        target: selectedView.cameraTarget,
-        projectionType: selectedView.projectionType,
-        fovYRadian: selectedView.fovYRadian,
+        position: view.cameraPosition,
+        target: view.cameraTarget,
+        projectionType: view.projectionType,
+        fovYRadian: view.fovYRadian,
       });
 
       // For orthographic projection, set the saved orthographic bounds
-      if (selectedView.projectionType === ProjectionType.ORTHOGRAPHIC) {
+      if (view.projectionType === ProjectionType.ORTHOGRAPHIC) {
         currentView.view.camera.setOrthographicBounds(
-          selectedView.orthographicLeft,
-          selectedView.orthographicRight,
-          selectedView.orthographicBottom,
-          selectedView.orthographicTop,
+          view.orthographicLeft,
+          view.orthographicRight,
+          view.orthographicBottom,
+          view.orthographicTop,
         );
       }
 
       // Update the camera matrices to reflect the new position
       currentView.view.camera.updateProjectionViewMatrix();
 
-      console.log("Loaded saved view:", selectedView.name);
+      // Update local state to track selection
+      setSelectedViewId(selectedKey);
+
+      console.log("Loaded saved view from DB:", view.name, "with position:", view.cameraPosition);
     },
     [renderer.views, activeView, savedViews],
   );
@@ -57,6 +60,8 @@ export default function SavedViewsToolbar({ savedViews = [], embedMode = false }
   if (!embedMode || savedViews.length === 0) {
     return null;
   }
+
+  const selectedView = savedViews.find((v) => v.id.toString() === selectedViewId?.toString());
 
   return (
     <View
@@ -68,7 +73,13 @@ export default function SavedViewsToolbar({ savedViews = [], embedMode = false }
       gridArea="savedViews"
     >
       <TooltipTrigger delay={0} placement="bottom">
-        <Picker onSelectionChange={handleSelectionChange} isQuiet placeholder="Saved Views" items={savedViews}>
+        <Picker
+          onSelectionChange={handleSelectionChange}
+          isQuiet
+          placeholder={selectedView ? selectedView.name : "Saved Views"}
+          items={savedViews}
+          selectedKey={selectedViewId}
+        >
           {(item) => (
             <Item key={item.id.toString()} textValue={item.name}>
               {item.name}
