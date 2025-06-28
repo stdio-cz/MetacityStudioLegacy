@@ -14,7 +14,8 @@
 		"ghcr.io/devcontainers/features/python:1": {
 			"version": "3.12"
 		},
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/ssh-agent:1": {}
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [
