@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  ActionButton,
-  ActionMenu,
-  DialogTrigger,
-  Item,
-  ListView,
-  Text,
-  useAsyncList,
-} from "@adobe/react-spectrum";
+import { ActionButton, ActionMenu, DialogTrigger, Item, ListView, Text, useAsyncList } from "@adobe/react-spectrum";
 import { NoData } from "@core/components/Empty";
 import { Model } from "@features/db/entities/model";
 import ModelDeleteDialog from "@features/models/components/ModelDeleteDialog";
@@ -63,12 +55,7 @@ export default function ModelList() {
           />
         )}
       </DialogTrigger>
-      <ListView
-        minHeight="size-3000"
-        aria-label="Models"
-        renderEmptyState={() => <NoData />}
-        items={items}
-      >
+      <ListView minHeight="size-3000" aria-label="Models" renderEmptyState={() => <NoData />} items={items}>
         {(model) => (
           <Item key={model.id} textValue={model.name}>
             <File />
@@ -90,16 +77,8 @@ export default function ModelList() {
           </Item>
         )}
       </ListView>
-      <ModelDeleteDialog
-        open={deleteDialogOpen}
-        close={handleCloseActionDialog}
-        modelId={selectedModelId}
-      />
-      <ModelRenameDialog
-        open={renameDialogOpen}
-        close={handleCloseActionDialog}
-        modelId={selectedModelId}
-      />
+      <ModelDeleteDialog open={deleteDialogOpen} close={handleCloseActionDialog} modelId={selectedModelId} />
+      <ModelRenameDialog open={renameDialogOpen} close={handleCloseActionDialog} modelId={selectedModelId} />
     </>
   );
 }

@@ -4,8 +4,15 @@ import {
   ActionBar,
   ActionBarContainer,
   ActionGroup,
+  AlertDialog,
   Button,
+  ButtonGroup,
+  Content,
+  Dialog,
+  DialogContainer,
   Flex,
+  Form,
+  Heading,
   Item,
   ListView,
   Text,
@@ -35,6 +42,11 @@ export default function EditorSavedViews({ projectId }: EditorSavedViewsProps) {
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [editingView, setEditingView] = useState<SavedView | null>(null);
   const [newViewName, setNewViewName] = useState<string>("Untitled View");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [viewToDelete, setViewToDelete] = useState<SavedView | null>(null);
+  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [renameValue, setRenameValue] = useState("");
+  const [viewToRename, setViewToRename] = useState<SavedView | null>(null);
 
   useEffect(() => {
     fetchSavedViews();
@@ -127,28 +139,30 @@ export default function EditorSavedViews({ projectId }: EditorSavedViewsProps) {
     [renderer.views, activeView],
   );
 
-  const handleDeleteView = useCallback(
-    async (view: SavedView) => {
-      try {
-        await deleteView(view.id);
-      } catch (err) {
-        console.error("Failed to delete view:", err);
-      }
-    },
-    [deleteView],
-  );
+  const handleOpenDelete = useCallback((view: SavedView) => {
+    setViewToDelete(view);
+    setDeleteDialogOpen(true);
+  }, []);
 
-  const handleRenameView = useCallback(
-    async (view: SavedView, newName: string) => {
-      try {
-        await updateView(view.id, { name: newName });
-        setEditingView(null);
-      } catch (err) {
-        console.error("Failed to rename view:", err);
-      }
-    },
-    [updateView],
-  );
+  const handleOpenRename = useCallback((view: SavedView) => {
+    setViewToRename(view);
+    setRenameValue(view.name);
+    setRenameDialogOpen(true);
+  }, []);
+
+  const handleDeleteConfirmed = useCallback(async () => {
+    if (!viewToDelete) return;
+    await deleteView(viewToDelete.id);
+    setDeleteDialogOpen(false);
+    setViewToDelete(null);
+  }, [viewToDelete, deleteView]);
+
+  const handleRenameConfirmed = useCallback(async () => {
+    if (!viewToRename) return;
+    await updateView(viewToRename.id, { name: renameValue });
+    setRenameDialogOpen(false);
+    setViewToRename(null);
+  }, [viewToRename, renameValue, updateView]);
 
   const handleItemAction = useCallback(
     (key: Key, view: SavedView) => {
@@ -157,14 +171,14 @@ export default function EditorSavedViews({ projectId }: EditorSavedViewsProps) {
           handleLoadView(view);
           break;
         case "rename":
-          setEditingView(view);
+          handleOpenRename(view);
           break;
         case "delete":
-          handleDeleteView(view);
+          handleOpenDelete(view);
           break;
       }
     },
-    [handleLoadView, handleDeleteView],
+    [handleLoadView, handleOpenDelete, handleOpenRename],
   );
 
   const selectedCount = selectedKeys.size;
@@ -222,7 +236,7 @@ export default function EditorSavedViews({ projectId }: EditorSavedViewsProps) {
                 autoFocus
               />
               <Flex gap="size-100">
-                <Button variant="primary" onPress={() => handleRenameView(editingView, editingView.name)}>
+                <Button variant="primary" onPress={() => handleItemAction("rename", editingView)}>
                   Save
                 </Button>
                 <Button variant="secondary" onPress={() => setEditingView(null)}>
@@ -287,6 +301,55 @@ export default function EditorSavedViews({ projectId }: EditorSavedViewsProps) {
             )}
           </ActionBarContainer>
         </View>
+
+        {/* Rename Dialog */}
+        <DialogContainer onDismiss={() => setRenameDialogOpen(false)}>
+          {renameDialogOpen && (
+            <Dialog>
+              <Heading>Rename View</Heading>
+              <Content>
+                <Form maxWidth="size-6000" validationBehavior="native">
+                  <TextField
+                    label="View name"
+                    name="name"
+                    isRequired
+                    validate={(value) => {
+                      if (!value) {
+                        return "View name is required";
+                      }
+                    }}
+                    value={renameValue}
+                    onChange={setRenameValue}
+                  />
+                </Form>
+              </Content>
+              <ButtonGroup marginTop={20}>
+                <Button variant="secondary" onPress={() => setRenameDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button variant="accent" onPress={handleRenameConfirmed}>
+                  Rename
+                </Button>
+              </ButtonGroup>
+            </Dialog>
+          )}
+        </DialogContainer>
+
+        {/* Delete Confirmation Dialog */}
+        <DialogContainer onDismiss={() => setDeleteDialogOpen(false)}>
+          {deleteDialogOpen && (
+            <AlertDialog
+              title="Delete View"
+              variant="destructive"
+              primaryActionLabel="Delete"
+              cancelLabel="Cancel"
+              onPrimaryAction={handleDeleteConfirmed}
+              onCancel={() => setDeleteDialogOpen(false)}
+            >
+              Are you sure you want to delete this view?
+            </AlertDialog>
+          )}
+        </DialogContainer>
       </Flex>
     </PositioningContainer>
   );

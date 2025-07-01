@@ -10,5 +10,31 @@ export default function useEmbeds(projectId: number) {
     defaultValue: [],
   });
 
-  return { embeds: data, isLoading, refetch };
+  // New: Rename embed
+  const renameEmbed = useCallback(
+    async (embedId: number, name: string) => {
+      const res = await fetch(`/api/embeds/${embedId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      if (!res.ok) throw new Error("Failed to rename embed");
+      await refetch();
+    },
+    [refetch],
+  );
+
+  // New: Delete embed
+  const deleteEmbed = useCallback(
+    async (embedId: number) => {
+      const res = await fetch(`/api/embeds/${embedId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete embed");
+      await refetch();
+    },
+    [refetch],
+  );
+
+  return { embeds: data, isLoading, refetch, renameEmbed, deleteEmbed };
 }
