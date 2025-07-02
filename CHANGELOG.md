@@ -1,3 +1,12 @@
+## [1.4.0](https://github.com/stdio-cz/MetacityStudioLegacy/compare/v1.3.2...v1.4.0) (2025-07-02)
+
+### Features
+
+* add buttons for exports (rename and delete) with dialogs ([bb24296](https://github.com/stdio-cz/MetacityStudioLegacy/commit/bb24296b352623904006edebd361b70496647bbe))
+
+### Bug Fixes
+
+* saved views correctly loading camera in both projections ([6699cd5](https://github.com/stdio-cz/MetacityStudioLegacy/commit/6699cd5eb3bd3185f2fa820bc9b26bbfaade83f3))
 ## [1.3.2](https://github.com/stdio-cz/MetacityStudioLegacy/compare/v1.3.1...v1.3.2) (2025-06-24)
 
 ### Bug Fixes
