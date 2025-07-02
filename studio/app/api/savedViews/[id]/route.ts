@@ -9,10 +9,9 @@ const putSchema = z.object({
   cameraTarget: z.array(z.number()).length(3).optional(),
   projectionType: z.nativeEnum(ProjectionType).optional(),
   fovYRadian: z.number().optional(),
-  orthographicLeft: z.number().optional(),
-  orthographicRight: z.number().optional(),
-  orthographicBottom: z.number().optional(),
-  orthographicTop: z.number().optional(),
+  orthographicZoomFactor: z.number().optional(),
+  canvasWidth: z.number().optional(),
+  canvasHeight: z.number().optional(),
 });
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {

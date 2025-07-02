@@ -74,10 +74,10 @@ export class Camera {
   }
 
   set(options: CameraOptions) {
-    if (options.position) this.position = options.position;
-    if (options.target) this.target = options.target;
-    if (options.up) this.upV = options.up;
-    if (options.right) this.rightV = options.right;
+    if (options.position) vec3.copy(this.position, options.position);
+    if (options.target) vec3.copy(this.target, options.target);
+    if (options.up) vec3.copy(this.upV, options.up);
+    if (options.right) vec3.copy(this.rightV, options.right);
     if (options.projectionType) this.projectionType = options.projectionType;
     if (options.fovYRadian) this.fovYRadian = options.fovYRadian;
     if (options.width) this.width = options.width;
@@ -185,11 +185,61 @@ export class Camera {
     return this.top;
   }
 
+  /**
+   * Get the up vector of the camera
+   */
+  get upVector(): vec3 {
+    return this.upV;
+  }
+
+  /**
+   * Get the right vector of the camera
+   */
+  get rightVector(): vec3 {
+    return this.rightV;
+  }
+
   setOrthographicBounds(left: number, right: number, bottom: number, top: number) {
     this.left = left;
     this.right = right;
     this.bottom = bottom;
     this.top = top;
+    this.updateMatrices();
+  }
+
+  /**
+   * Rescale orthographic bounds based on canvas size changes.
+   * This is useful when loading saved views that were saved with different canvas dimensions.
+   * @param left - Original left bound
+   * @param right - Original right bound
+   * @param bottom - Original bottom bound
+   * @param top - Original top bound
+   * @param originalWidth - Width when the bounds were saved
+   * @param originalHeight - Height when the bounds were saved
+   */
+  setOrthographicBoundsWithRescale(
+    left: number,
+    right: number,
+    bottom: number,
+    top: number,
+    originalWidth: number,
+    originalHeight: number,
+  ) {
+    // Calculate scale factors based on current vs original canvas size
+    const widthScale = this.width / originalWidth;
+    const heightScale = this.height / originalHeight;
+
+    // Rescale the bounds proportionally
+    const centerX = (left + right) / 2;
+    const centerY = (bottom + top) / 2;
+    const halfWidth = (right - left) / 2;
+    const halfHeight = (top - bottom) / 2;
+
+    this.left = centerX - halfWidth * widthScale;
+    this.right = centerX + halfWidth * widthScale;
+    this.bottom = centerY - halfHeight * heightScale;
+    this.top = centerY + halfHeight * heightScale;
+
     this.updateMatrices();
   }
 
@@ -522,5 +572,69 @@ export class Camera {
     const dir = vec3.create();
     vec3.add(dir, currentRight, currentUp);
     return dir;
+  }
+
+  /**
+   * Get the orthographic zoom factor (scale of the view relative to default bounds)
+   * This represents the intrinsic zoom level, not the current bounds
+   */
+  getOrthographicZoomFactor(): number {
+    if (this.projectionType !== ProjectionType.ORTHOGRAPHIC) {
+      return 1.0;
+    }
+
+    // Calculate zoom factor based on current bounds vs default bounds
+    const currentWidth = this.right - this.left;
+    const defaultWidth = this.width;
+    return defaultWidth / currentWidth;
+  }
+
+  /**
+   * Set the orthographic zoom factor and reconstruct bounds
+   * This sets the intrinsic zoom level and recalculates bounds based on current canvas size
+   */
+  setOrthographicZoomFactor(zoomFactor: number) {
+    if (this.projectionType !== ProjectionType.ORTHOGRAPHIC) {
+      return;
+    }
+
+    // Calculate bounds based on zoom factor and current canvas size
+    const halfWidth = this.width / zoomFactor / 2;
+    const halfHeight = this.height / zoomFactor / 2;
+
+    this.left = -halfWidth;
+    this.right = halfWidth;
+    this.bottom = -halfHeight;
+    this.top = halfHeight;
+
+    this.updateMatrices();
+  }
+
+  /**
+   * Set orthographic bounds with zoom factor rescaling
+   * This is the preferred method for loading saved views
+   */
+  setOrthographicViewWithRescale(zoomFactor: number, originalWidth: number, originalHeight: number) {
+    if (this.projectionType !== ProjectionType.ORTHOGRAPHIC) {
+      return;
+    }
+
+    // Calculate scale factors based on current vs original canvas size
+    const widthScale = this.width / originalWidth;
+    const heightScale = this.height / originalHeight;
+
+    // Use the smaller scale to maintain aspect ratio
+    const scale = Math.min(widthScale, heightScale);
+
+    // Calculate bounds based on zoom factor and scaled canvas size
+    const halfWidth = this.width / (zoomFactor * scale) / 2;
+    const halfHeight = this.height / (zoomFactor * scale) / 2;
+
+    this.left = -halfWidth;
+    this.right = halfWidth;
+    this.bottom = -halfHeight;
+    this.top = halfHeight;
+
+    this.updateMatrices();
   }
 }

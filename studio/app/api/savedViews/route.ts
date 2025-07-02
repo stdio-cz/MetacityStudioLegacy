@@ -5,15 +5,17 @@ import { z } from "zod";
 
 const postSchema = z.object({
   name: z.string().min(1),
-  cameraPosition: z.array(z.number()).length(3),
-  cameraTarget: z.array(z.number()).length(3),
-  projectionType: z.nativeEnum(ProjectionType),
-  fovYRadian: z.number(),
-  orthographicLeft: z.number(),
-  orthographicRight: z.number(),
-  orthographicBottom: z.number(),
-  orthographicTop: z.number(),
   projectId: z.number(),
+  // Legacy fields for backward compatibility
+  cameraPosition: z.array(z.number()).length(3).optional(),
+  cameraTarget: z.array(z.number()).length(3).optional(),
+  projectionType: z.nativeEnum(ProjectionType).optional(),
+  fovYRadian: z.number().optional(),
+  orthographicZoomFactor: z.number().optional(),
+  canvasWidth: z.number().optional(),
+  canvasHeight: z.number().optional(),
+  // New serialized view state
+  viewState: z.any().optional(),
 });
 
 export async function GET(req: Request) {
@@ -46,14 +48,16 @@ export async function POST(req: Request) {
     const savedViewRepository = await injectRepository(SavedView);
     const savedView = savedViewRepository.create({
       name: data.name,
+      // Legacy fields for backward compatibility
       cameraPosition: data.cameraPosition,
       cameraTarget: data.cameraTarget,
       projectionType: data.projectionType,
       fovYRadian: data.fovYRadian,
-      orthographicLeft: data.orthographicLeft,
-      orthographicRight: data.orthographicRight,
-      orthographicBottom: data.orthographicBottom,
-      orthographicTop: data.orthographicTop,
+      orthographicZoomFactor: data.orthographicZoomFactor,
+      canvasWidth: data.canvasWidth,
+      canvasHeight: data.canvasHeight,
+      // New serialized view state
+      viewState: data.viewState,
       project: { id: data.projectId },
     });
 

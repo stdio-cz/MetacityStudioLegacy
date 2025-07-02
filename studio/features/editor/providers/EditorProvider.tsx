@@ -3,20 +3,9 @@ import * as GL from "@bananagl/bananagl";
 import { EditorModel } from "@editor/data/EditorModel";
 import { ModelStyle, Style } from "@editor/data/types";
 import { vec3 } from "gl-matrix";
-import {
-  Dispatch,
-  ReactNode,
-  SetStateAction,
-  createContext,
-  useEffect,
-  useState,
-} from "react";
+import { Dispatch, ReactNode, SetStateAction, createContext, useEffect, useState } from "react";
 
-export type SelectFunction = (
-  selection: SelectionType,
-  toggle?: boolean,
-  extend?: boolean,
-) => void;
+export type SelectFunction = (selection: SelectionType, toggle?: boolean, extend?: boolean) => void;
 export type SelectionType = Map<EditorModel, Set<number>>;
 export type Tooltip = { data: any; x: number; y: number } | null;
 
@@ -50,11 +39,11 @@ type EditorContextProps = {
   setProjection: Dispatch<SetStateAction<GL.ProjectionType>>;
   viewMode: GL.CameraView;
   setViewMode: Dispatch<SetStateAction<GL.CameraView>>;
+  // Add method to update context state from a loaded view
+  updateContextFromView: (viewState: any) => void;
 };
 
-export const context = createContext<EditorContextProps>(
-  {} as EditorContextProps,
-);
+export const context = createContext<EditorContextProps>({} as EditorContextProps);
 
 export function EditorProvider(props: { children: ReactNode }) {
   const [renderer] = useState(new GL.Renderer());
@@ -70,9 +59,7 @@ export function EditorProvider(props: { children: ReactNode }) {
   const [modelStyles, setModelStyles] = useState<ModelStyle>({});
   const [greyscale, setGreyscale] = useState<boolean>(false);
   const [activeMetadataColumn, setActiveMetadataColumn] = useState<string>("");
-  const [projection, setProjection] = useState<GL.ProjectionType>(
-    GL.ProjectionType.ORTHOGRAPHIC,
-  );
+  const [projection, setProjection] = useState<GL.ProjectionType>(GL.ProjectionType.ORTHOGRAPHIC);
   const [viewMode, setViewMode] = useState<GL.CameraView>(GL.CameraView.Free);
 
   //TODO darkmode load from user device settings
@@ -121,6 +108,7 @@ export function EditorProvider(props: { children: ReactNode }) {
   useEffect(() => {
     const view = renderer.views?.[activeView].view;
     if (!view) return;
+    console.debug("EditorProvider: Setting camera Z to", camTargetZ);
     view.camera.z = camTargetZ;
   }, [activeView, renderer.views, camTargetZ]);
 
@@ -141,14 +129,40 @@ export function EditorProvider(props: { children: ReactNode }) {
   useEffect(() => {
     const view = renderer.views?.[activeView].view;
     if (!view) return;
+    console.debug("EditorProvider: Setting projection type to", projection);
     view.camera.projectionType = projection;
   }, [activeView, renderer.views, projection]);
 
   useEffect(() => {
     const view = renderer.views?.[activeView].view;
     if (!view) return;
+    console.debug("EditorProvider: Setting camera lock mode to", viewMode);
     view.cameraLock.mode = viewMode;
   }, [activeView, renderer.views, viewMode]);
+
+  // Method to update context state from a loaded view state
+  const updateContextFromView = (viewState: any) => {
+    console.debug("EditorProvider: Updating context from view state", viewState);
+
+    if (viewState?.camera) {
+      // Update projection type if it differs
+      if (viewState.camera.projectionType && viewState.camera.projectionType !== projection) {
+        console.debug("EditorProvider: Updating projection from", projection, "to", viewState.camera.projectionType);
+        setProjection(viewState.camera.projectionType);
+      }
+
+      // Update camera target Z if available
+      if (viewState.camera.target && viewState.camera.target[2] !== camTargetZ) {
+        console.debug("EditorProvider: Updating camTargetZ from", camTargetZ, "to", viewState.camera.target[2]);
+        setCamTargetZ(viewState.camera.target[2]);
+      }
+    }
+
+    if (viewState?.cameraLock?.mode && viewState.cameraLock.mode !== viewMode) {
+      console.debug("EditorProvider: Updating viewMode from", viewMode, "to", viewState.cameraLock.mode);
+      setViewMode(viewState.cameraLock.mode);
+    }
+  };
 
   return (
     <context.Provider
@@ -182,6 +196,7 @@ export function EditorProvider(props: { children: ReactNode }) {
         setProjection,
         viewMode,
         setViewMode,
+        updateContextFromView,
       }}
     >
       {props.children}

@@ -25,29 +25,12 @@ export function useSavedViews(projectId: number) {
   }, [projectId]);
 
   const createView = useCallback(
-    async (
-      name: string,
-      cameraPosition: [number, number, number],
-      cameraTarget: [number, number, number],
-      projectionType: ProjectionType,
-      fovYRadian: number,
-      orthographicLeft: number,
-      orthographicRight: number,
-      orthographicBottom: number,
-      orthographicTop: number,
-    ) => {
+    async (name: string, viewState?: any) => {
       try {
         setError(null);
         const newView = await createSavedView({
           name,
-          cameraPosition,
-          cameraTarget,
-          projectionType,
-          fovYRadian,
-          orthographicLeft,
-          orthographicRight,
-          orthographicBottom,
-          orthographicTop,
+          viewState,
           projectId,
         });
         setSavedViews((prev) => [newView, ...prev]);
@@ -69,10 +52,9 @@ export function useSavedViews(projectId: number) {
         cameraTarget?: [number, number, number];
         projectionType?: ProjectionType;
         fovYRadian?: number;
-        orthographicLeft?: number;
-        orthographicRight?: number;
-        orthographicBottom?: number;
-        orthographicTop?: number;
+        orthographicZoomFactor?: number;
+        canvasWidth?: number;
+        canvasHeight?: number;
       },
     ) => {
       try {

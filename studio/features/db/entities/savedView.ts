@@ -1,4 +1,5 @@
 import { ProjectionType } from "@features/bananagl/camera/cameraInterface";
+import type { ViewState } from "@features/bananagl/window/viewState";
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Project } from "./project";
 
@@ -9,18 +10,17 @@ export class SavedView {
 
   @Column() name!: string;
 
-  @Column("float", { array: true }) cameraPosition!: [number, number, number];
-  @Column("float", { array: true }) cameraTarget!: [number, number, number];
+  // Legacy fields for backward compatibility
+  @Column("float", { array: true, nullable: true }) cameraPosition?: [number, number, number];
+  @Column("float", { array: true, nullable: true }) cameraTarget?: [number, number, number];
+  @Column({ type: "enum", enum: ProjectionType, nullable: true }) projectionType?: ProjectionType;
+  @Column("float", { nullable: true }) fovYRadian?: number;
+  @Column("float", { nullable: true }) orthographicZoomFactor?: number;
+  @Column("float", { nullable: true }) canvasWidth?: number;
+  @Column("float", { nullable: true }) canvasHeight?: number;
 
-  @Column({ type: "enum", enum: ProjectionType, default: ProjectionType.ORTHOGRAPHIC })
-  projectionType!: ProjectionType;
-
-  @Column("float", { default: Math.PI / 4 }) fovYRadian!: number;
-
-  @Column("float", { default: -1 }) orthographicLeft!: number;
-  @Column("float", { default: 1 }) orthographicRight!: number;
-  @Column("float", { default: -1 }) orthographicBottom!: number;
-  @Column("float", { default: 1 }) orthographicTop!: number;
+  // New serialized view state
+  @Column("json", { nullable: true }) viewState?: ViewState;
 
   @ManyToOne(() => Project, {
     onDelete: "CASCADE",

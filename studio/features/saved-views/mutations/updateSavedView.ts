@@ -7,10 +7,9 @@ type UpdateSavedViewData = {
   cameraTarget?: [number, number, number];
   projectionType?: ProjectionType;
   fovYRadian?: number;
-  orthographicLeft?: number;
-  orthographicRight?: number;
-  orthographicBottom?: number;
-  orthographicTop?: number;
+  orthographicZoomFactor?: number;
+  canvasWidth?: number;
+  canvasHeight?: number;
 };
 
 export async function updateSavedView(id: number, data: UpdateSavedViewData): Promise<SavedView> {

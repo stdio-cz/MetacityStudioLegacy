@@ -1,5 +1,6 @@
 import { Item, Picker, Tooltip, TooltipTrigger, View } from "@adobe/react-spectrum";
 import { ProjectionType } from "@features/bananagl/camera/cameraInterface";
+import { CameraView } from "@features/bananagl/camera/cameraView";
 import { SavedView } from "@features/db/entities/savedView";
 import { useEditorContext } from "@features/editor/hooks/useEditorContext";
 import { useCallback, useState } from "react";
@@ -10,50 +11,49 @@ type SavedViewsToolbarProps = {
 };
 
 export default function SavedViewsToolbar({ savedViews = [], embedMode = false }: SavedViewsToolbarProps) {
-  const { renderer, activeView } = useEditorContext();
+  const { renderer, activeView, updateContextFromView } = useEditorContext();
   const [selectedViewId, setSelectedViewId] = useState<string | number | null>(null);
 
   const handleSelectionChange = useCallback(
     (selectedKey: string | number) => {
       if (!selectedKey) return;
-
       const view = savedViews.find((v) => v.id.toString() === selectedKey.toString());
       if (!view) return;
-
-      // Set camera position in the editor context
       const currentView = renderer.views?.[activeView];
       if (!currentView) {
         console.error("No active view found");
         return;
       }
-
-      // Always reset to the exact database values, regardless of current state
-      currentView.view.camera.set({
-        position: view.cameraPosition,
-        target: view.cameraTarget,
-        projectionType: view.projectionType,
-        fovYRadian: view.fovYRadian,
-      });
-
-      // For orthographic projection, set the saved orthographic bounds
-      if (view.projectionType === ProjectionType.ORTHOGRAPHIC) {
-        currentView.view.camera.setOrthographicBounds(
-          view.orthographicLeft,
-          view.orthographicRight,
-          view.orthographicBottom,
-          view.orthographicTop,
-        );
+      currentView.view.cameraLock.mode = CameraView.Free;
+      if (view.viewState) {
+        currentView.view.deserialize(view.viewState, currentView.view.width, currentView.view.height);
+        updateContextFromView(view.viewState);
+      } else if (view.cameraPosition && view.cameraTarget && view.projectionType) {
+        currentView.view.camera.set({
+          position: view.cameraPosition,
+          target: view.cameraTarget,
+          projectionType: view.projectionType,
+          fovYRadian: view.fovYRadian || Math.PI / 4,
+        });
+        if (
+          view.projectionType === ProjectionType.ORTHOGRAPHIC &&
+          view.orthographicZoomFactor &&
+          view.canvasWidth &&
+          view.canvasHeight
+        ) {
+          currentView.view.camera.setOrthographicViewWithRescale(
+            view.orthographicZoomFactor,
+            view.canvasWidth,
+            view.canvasHeight,
+          );
+        }
+        currentView.view.camera.updateProjectionViewMatrix();
       }
-
-      // Update the camera matrices to reflect the new position
       currentView.view.camera.updateProjectionViewMatrix();
-
-      // Update local state to track selection
       setSelectedViewId(selectedKey);
-
-      console.log("Loaded saved view from DB:", view.name, "with position:", view.cameraPosition);
+      console.log("Loaded saved view from DB:", view.name);
     },
-    [renderer.views, activeView, savedViews],
+    [renderer.views, activeView, savedViews, updateContextFromView],
   );
 
   // Only show in embed mode and if there are saved views
